@@ -2,8 +2,9 @@ export const PLANS = [
   {
     id: "monthly",
     name: "Mensal",
-    price: "R$ 29,90",
+    price: "R$ 29",
     period: "/mês",
+    checkoutUrl: "https://pay.cakto.com.br/3282ng5_973347",
     highlight: false,
     features: [
       "Todas as ferramentas Spark",
@@ -15,8 +16,9 @@ export const PLANS = [
   {
     id: "quarterly",
     name: "Trimestral",
-    price: "R$ 69,90",
+    price: "R$ 69",
     period: "/trimestre",
+    checkoutUrl: "https://pay.cakto.com.br/brgjmic_973369",
     highlight: true,
     features: [
       "Tudo do Mensal",
@@ -26,16 +28,17 @@ export const PLANS = [
     ],
   },
   {
-    id: "lifetime",
-    name: "Vitalícia",
-    price: "R$ 397",
-    period: "pagamento único",
+    id: "annual",
+    name: "Anual",
+    price: "R$ 197",
+    period: "/ano",
+    checkoutUrl: "https://pay.cakto.com.br/kc6kjzk_973382",
     highlight: false,
     features: [
-      "Acesso vitalício",
-      "Todas as futuras versões",
+      "Tudo do Trimestral",
+      "Economia de 43%",
       "Suporte VIP",
-      "5 dispositivos",
+      "3 dispositivos",
     ],
   },
 ] as const;
