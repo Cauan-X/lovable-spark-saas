@@ -11,6 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { Navigation } from "@/components/navigation";
+import { Footer } from "@/components/footer";
 
 function NotFoundComponent() {
   return (
@@ -77,11 +79,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Página em Branco" },
-      { name: "description", content: "Projeto de página web em branco." },
+      { title: "Lovable Spark — Extensão Chrome para Lovable.dev" },
+      { name: "description", content: "Turbine o Lovable.dev com Prompt Injector, Optimizer, Shield Mode, Code Downloader e Watermark Remover." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Página em Branco" },
-      { property: "og:description", content: "Projeto de página web em branco." },
+      { property: "og:title", content: "Lovable Spark" },
+      { property: "og:description", content: "A extensão Chrome que turbina sua experiência no Lovable.dev." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
@@ -119,8 +121,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <div className="flex min-h-screen flex-col bg-background text-foreground">
+        <Navigation />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
     </QueryClientProvider>
   );
 }
