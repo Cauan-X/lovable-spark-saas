@@ -42,7 +42,7 @@ const fadeUp = {
   initial: { opacity: 0, y: 16, filter: "blur(6px)" },
   whileInView: { opacity: 1, y: 0, filter: "blur(0px)" },
   viewport: { once: true, margin: "-80px" },
-  transition: { duration: 0.7, ease: [0.2, 0.7, 0.2, 1] },
+  transition: { duration: 0.7, ease: [0.2, 0.7, 0.2, 1] as const },
 };
 
 function Index() {
@@ -88,7 +88,7 @@ function Hero() {
         <motion.h1
           initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1], delay: 0.05 }}
+          transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1] as const, delay: 0.05 }}
           className="mt-8 font-display text-[44px] sm:text-[64px] md:text-[88px] leading-[0.95] tracking-[-0.045em] font-semibold"
         >
           <span className="text-gradient-fade">A camada</span>
@@ -144,7 +144,7 @@ function Hero() {
       <motion.div
         initial={{ opacity: 0, y: 40, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 1, ease: [0.2, 0.7, 0.2, 1], delay: 0.4 }}
+        transition={{ duration: 1, ease: [0.2, 0.7, 0.2, 1] as const, delay: 0.4 }}
         className="relative mx-auto mt-20 max-w-5xl px-6"
       >
         <div className="pointer-events-none absolute -inset-x-10 -inset-y-6 -z-10 rounded-[40px] bg-[radial-gradient(closest-side,rgba(139,92,246,0.25),transparent_70%)] blur-2xl" />
@@ -398,7 +398,7 @@ function BentoCard({
       initial={{ opacity: 0, y: 20, filter: "blur(6px)" }}
       whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.7, ease: [0.2, 0.7, 0.2, 1], delay }}
+      transition={{ duration: 0.7, ease: [0.2, 0.7, 0.2, 1] as const, delay }}
       className={`glass-card hover-lift relative rounded-xl p-6 overflow-hidden ${className}`}
     >
       {children}
@@ -453,7 +453,7 @@ function ProductShowcase() {
           initial={{ opacity: 0, x: 30, filter: "blur(6px)" }}
           whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1] }}
+          transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1] as const }}
           className="glass-card rounded-xl p-4 relative"
         >
           <div className="flex items-center justify-between text-[11px] text-muted-foreground border-b border-white/[0.06] pb-3">
@@ -499,7 +499,7 @@ function ProductShowcase() {
           initial={{ opacity: 0, x: -30, filter: "blur(6px)" }}
           whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1] }}
+          transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1] as const }}
           className="glass-card rounded-xl p-6 relative md:order-1 order-2"
         >
           <div className="flex items-center justify-between">
@@ -601,7 +601,7 @@ function Pricing() {
               initial={{ opacity: 0, y: 20, filter: "blur(6px)" }}
               whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.7, ease: [0.2, 0.7, 0.2, 1], delay: i * 0.08 }}
+              transition={{ duration: 0.7, ease: [0.2, 0.7, 0.2, 1] as const, delay: i * 0.08 }}
               className={`relative rounded-2xl p-8 hover-lift ${
                 p.highlight
                   ? "border border-primary/30 bg-gradient-to-b from-primary/[0.08] via-transparent to-transparent md:scale-[1.03] md:-translate-y-1"
