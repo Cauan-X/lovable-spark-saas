@@ -5,10 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Upload, Save } from "lucide-react";
+import { Loader2, Upload, Save, ShieldCheck, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useUser, initialsOf } from "@/hooks/use-user";
+import { nameSchema, phoneSchema, passwordSchema, otpNonceSchema } from "@/lib/validation";
+import { prettyError } from "@/lib/error-messages";
+
+// Whitelist de imagens seguras. SVG é rejeitado por permitir XSS quando servido inline.
+const ALLOWED_AVATAR_MIME: Record<string, string> = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/webp": "webp",
+};
+const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 
 export const Route = createFileRoute("/dashboard/profile")({
   component: ProfilePage,
@@ -22,7 +32,13 @@ function ProfilePage() {
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [pwd, setPwd] = useState("");
+  const [pwdConfirm, setPwdConfirm] = useState("");
   const [pwdSaving, setPwdSaving] = useState(false);
+  // Reautenticação por nonce (código de 6 dígitos enviado por email) — fluxo oficial
+  // do Supabase para trocar senha sem depender da senha atual (usuários magic link).
+  const [reauthSent, setReauthSent] = useState(false);
+  const [reauthNonce, setReauthNonce] = useState("");
+  const [reauthSending, setReauthSending] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -36,6 +52,14 @@ function ProfilePage() {
   const shownAvatar = preview ?? avatarUrl;
 
   const onFile = (f: File) => {
+    if (!(f.type in ALLOWED_AVATAR_MIME)) {
+      toast.error("Formato inválido. Use PNG, JPG ou WEBP.");
+      return;
+    }
+    if (f.size > MAX_AVATAR_BYTES) {
+      toast.error("Imagem muito grande. Máximo 2MB.");
+      return;
+    }
     setFile(f);
     const r = new FileReader();
     r.onload = () => setPreview(r.result as string);
@@ -43,13 +67,24 @@ function ProfilePage() {
   };
 
   const save = async () => {
+    const nameCheck = nameSchema.safeParse(fullName);
+    if (fullName && !nameCheck.success) { toast.error(nameCheck.error.issues[0]?.message ?? "Nome inválido"); return; }
+    const phoneCheck = phoneSchema.safeParse(phone);
+    if (!phoneCheck.success) { toast.error("Telefone inválido"); return; }
     setSaving(true);
     try {
       let avatar_path = profile?.avatar_url ?? null;
       if (file) {
-        const ext = file.name.split(".").pop() || "png";
-        const path = `${user.id}/avatar-${Date.now()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+        // MIME já foi validado em onFile; deriva extensão a partir do MIME (não do nome do arquivo).
+        const ext = ALLOWED_AVATAR_MIME[file.type];
+        if (!ext) throw new Error("Formato inválido.");
+        const rand = crypto.randomUUID();
+        const path = `${user.id}/avatar-${rand}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, {
+          upsert: true,
+          contentType: file.type,
+          cacheControl: "3600",
+        });
         if (upErr) throw upErr;
         avatar_path = path;
       }
@@ -66,20 +101,39 @@ function ProfilePage() {
       await refresh();
       toast.success("Perfil atualizado");
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Erro ao salvar");
+      toast.error(prettyError(e, "Erro ao salvar"));
     } finally {
       setSaving(false);
     }
   };
 
+  const requestReauth = async () => {
+    setReauthSending(true);
+    // Envia código de 6 dígitos ao email do usuário logado.
+    const { error } = await supabase.auth.reauthenticate();
+    setReauthSending(false);
+    if (error) { toast.error(prettyError(error)); return; }
+    setReauthSent(true);
+    toast.success("Código enviado para o seu email.");
+  };
+
   const changePassword = async () => {
-    if (pwd.length < 8) { toast.error("A senha deve ter pelo menos 8 caracteres"); return; }
+    const pwdCheck = passwordSchema.safeParse(pwd);
+    if (!pwdCheck.success) { toast.error(pwdCheck.error.issues[0]?.message ?? "Senha inválida"); return; }
+    if (pwd !== pwdConfirm) { toast.error("As senhas não coincidem"); return; }
+    const nonceCheck = otpNonceSchema.safeParse(reauthNonce);
+    if (!nonceCheck.success) { toast.error("Informe o código de 6 dígitos enviado ao seu email"); return; }
     setPwdSaving(true);
-    const { error } = await supabase.auth.updateUser({ password: pwd });
+    // updateUser({ password, nonce }) confirma o código de reautenticação e troca a senha
+    // atomicamente. Sem o nonce válido o Supabase rejeita a alteração.
+    const { error } = await supabase.auth.updateUser({ password: pwdCheck.data, nonce: nonceCheck.data });
     setPwdSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(prettyError(error)); return; }
     setPwd("");
-    toast.success("Senha alterada");
+    setPwdConfirm("");
+    setReauthNonce("");
+    setReauthSent(false);
+    toast.success("Senha alterada com sucesso.");
   };
 
   return (
@@ -135,13 +189,49 @@ function ProfilePage() {
 
       <Card className="glass-card p-6">
         <h2 className="text-lg font-display font-semibold">Alterar senha</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Defina uma nova senha para sua conta.</p>
-        <div className="mt-4 flex flex-col sm:flex-row gap-3">
-          <Input type="password" value={pwd} onChange={(e) => setPwd(e.target.value)} placeholder="Nova senha (mín. 8 caracteres)" />
-          <Button onClick={changePassword} disabled={pwdSaving || !pwd} variant="outline">
-            {pwdSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Atualizar
-          </Button>
-        </div>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Por segurança, enviamos um código de 6 dígitos ao seu email para confirmar a troca.
+        </p>
+        {!reauthSent ? (
+          <div className="mt-4">
+            <Button onClick={requestReauth} disabled={reauthSending} variant="outline">
+              {reauthSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
+              Enviar código de verificação
+            </Button>
+          </div>
+        ) : (
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <Label htmlFor="nonce">Código recebido por email</Label>
+              <Input
+                id="nonce"
+                inputMode="numeric"
+                maxLength={6}
+                value={reauthNonce}
+                onChange={(e) => setReauthNonce(e.target.value.replace(/\D/g, ""))}
+                placeholder="000000"
+                autoComplete="one-time-code"
+              />
+            </div>
+            <div>
+              <Label htmlFor="newpwd">Nova senha</Label>
+              <Input id="newpwd" type="password" minLength={8} maxLength={72} value={pwd} onChange={(e) => setPwd(e.target.value)} autoComplete="new-password" />
+            </div>
+            <div>
+              <Label htmlFor="confpwd">Confirmar senha</Label>
+              <Input id="confpwd" type="password" minLength={8} maxLength={72} value={pwdConfirm} onChange={(e) => setPwdConfirm(e.target.value)} autoComplete="new-password" />
+            </div>
+            <div className="sm:col-span-2 flex flex-wrap gap-2">
+              <Button onClick={changePassword} disabled={pwdSaving || !pwd || !pwdConfirm || !reauthNonce}>
+                {pwdSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
+                Confirmar alteração
+              </Button>
+              <Button variant="ghost" onClick={() => { setReauthSent(false); setPwd(""); setPwdConfirm(""); setReauthNonce(""); }}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );

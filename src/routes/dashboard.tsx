@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +31,7 @@ const NAV = [
 
 function DashboardLayout() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, profile, avatarUrl, loading } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -41,8 +43,17 @@ function DashboardLayout() {
   }, [loading, user, navigate]);
 
   const signOut = async () => {
+    // Higiene de logout: cancelar queries em voo (evita 401 storm),
+    // limpar cache do React Query (evita restauração de dados protegidos via Back)
+    // e só então encerrar a sessão Supabase.
+    try {
+      await queryClient.cancelQueries();
+      queryClient.clear();
+    } catch {
+      /* no-op */
+    }
     await supabase.auth.signOut();
-    navigate({ to: "/auth" });
+    navigate({ to: "/auth", replace: true });
   };
 
   if (loading || !user) {
