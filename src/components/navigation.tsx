@@ -14,14 +14,22 @@ import {
 import { NAV_LINKS } from "@/lib/site-data";
 import { useUser, initialsOf } from "@/hooks/use-user";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function Navigation() {
   const [open, setOpen] = useState(false);
   const { user, profile, avatarUrl } = useUser();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const signOut = async () => {
+    try {
+      await queryClient.cancelQueries();
+      queryClient.clear();
+    } catch {
+      /* no-op */
+    }
     await supabase.auth.signOut();
-    navigate({ to: "/" });
+    navigate({ to: "/", replace: true });
   };
   const displayName = profile?.full_name || user?.email?.split("@")[0] || "";
   const initials = initialsOf(profile?.full_name, user?.email);
