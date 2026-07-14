@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Mail, MessageCircle, Send, Loader2, Check } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { contactSchema } from "@/lib/validation";
+import { submitContact } from "@/lib/contact.functions";
+import { prettyError } from "@/lib/error-messages";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({ meta: [{ title: "Contato — Lovable Spark" }, { name: "description", content: "Fale com nosso suporte via Telegram, WhatsApp, email ou formulário." }] }),
@@ -25,20 +28,37 @@ const FAQ = [
 function Contact() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const submit = useServerFn(submitContact);
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.currentTarget as HTMLFormElement;
     const fd = new FormData(form);
-    setLoading(true);
-    const { error } = await supabase.from("contacts").insert({
+    const parsed = contactSchema.safeParse({
       name: String(fd.get("name") ?? ""),
       email: String(fd.get("email") ?? ""),
       subject: String(fd.get("subject") ?? ""),
       message: String(fd.get("message") ?? ""),
     });
-    setLoading(false);
-    if (error) { toast.error("Não foi possível enviar. Tente novamente."); return; }
-    setSent(true);
+    if (!parsed.success) {
+      const fieldErrors: Record<string, string> = {};
+      for (const issue of parsed.error.issues) {
+        const key = String(issue.path[0] ?? "");
+        if (key && !fieldErrors[key]) fieldErrors[key] = issue.message;
+      }
+      setErrors(fieldErrors);
+      return;
+    }
+    setErrors({});
+    setLoading(true);
+    try {
+      await submit({ data: parsed.data });
+      setSent(true);
+    } catch (err) {
+      toast.error(prettyError(err, "Não foi possível enviar. Tente novamente."));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -57,11 +77,27 @@ function Contact() {
           ) : (
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
-                <div><Label htmlFor="n">Nome</Label><Input id="n" name="name" required /></div>
-                <div><Label htmlFor="e">Email</Label><Input id="e" name="email" type="email" required /></div>
+                <div>
+                  <Label htmlFor="n">Nome</Label>
+                  <Input id="n" name="name" maxLength={100} required />
+                  {errors.name && <p className="mt-1 text-xs text-destructive">{errors.name}</p>}
+                </div>
+                <div>
+                  <Label htmlFor="e">Email</Label>
+                  <Input id="e" name="email" type="email" maxLength={254} required />
+                  {errors.email && <p className="mt-1 text-xs text-destructive">{errors.email}</p>}
+                </div>
               </div>
-              <div><Label htmlFor="s">Assunto</Label><Input id="s" name="subject" required /></div>
-              <div><Label htmlFor="m">Mensagem</Label><Textarea id="m" name="message" rows={6} required /></div>
+              <div>
+                <Label htmlFor="s">Assunto</Label>
+                <Input id="s" name="subject" maxLength={150} required />
+                {errors.subject && <p className="mt-1 text-xs text-destructive">{errors.subject}</p>}
+              </div>
+              <div>
+                <Label htmlFor="m">Mensagem</Label>
+                <Textarea id="m" name="message" rows={6} maxLength={2000} required />
+                {errors.message && <p className="mt-1 text-xs text-destructive">{errors.message}</p>}
+              </div>
               <Button type="submit" disabled={loading}>{loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Enviando</> : <>Enviar <Send className="ml-2 h-4 w-4" /></>}</Button>
             </form>
           )}

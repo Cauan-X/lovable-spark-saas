@@ -8,6 +8,8 @@ import { Sparkles, Loader2, Mail, Check } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { emailSchema } from "@/lib/validation";
+import { prettyError } from "@/lib/error-messages";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -24,6 +26,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -37,15 +40,29 @@ function AuthPage() {
 
   const onMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
+    const parsed = emailSchema.safeParse(email);
+    if (!parsed.success) { toast.error(parsed.error.issues[0]?.message ?? "Email inválido"); return; }
     setLoading(true);
     const { error } = await supabase.auth.signInWithOtp({
-      email,
+      email: parsed.data,
       options: { emailRedirectTo: `${window.location.origin}/dashboard` },
     });
     setLoading(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(prettyError(error)); return; }
     setSent(true);
     toast.success("Link mágico enviado! Verifique seu email.");
+  };
+
+  const onForgotPassword = async () => {
+    const parsed = emailSchema.safeParse(email);
+    if (!parsed.success) { toast.error("Informe seu email para receber o link de redefinição."); return; }
+    setResetting(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setResetting(false);
+    if (error) { toast.error(prettyError(error)); return; }
+    toast.success("Se este email existir, enviaremos um link para redefinir a senha.");
   };
 
   const onGoogle = async () => {
@@ -92,11 +109,19 @@ function AuthPage() {
             <form onSubmit={onMagicLink} className="space-y-3">
               <div>
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" />
+                <Input id="email" type="email" maxLength={254} required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Enviando</> : <><Mail className="mr-2 h-4 w-4" /> Enviar link mágico</>}
               </Button>
+              <button
+                type="button"
+                onClick={onForgotPassword}
+                disabled={resetting}
+                className="w-full text-center text-xs text-muted-foreground hover:text-foreground underline underline-offset-4 disabled:opacity-50"
+              >
+                {resetting ? "Enviando link…" : "Esqueci minha senha"}
+              </button>
             </form>
           </>
         )}
