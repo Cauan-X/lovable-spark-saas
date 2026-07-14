@@ -18,7 +18,49 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
   }
 });
 
+// CSP mantida permissiva o suficiente para não quebrar Google Fonts, Supabase (realtime wss),
+// Cakto (redirect de checkout), preview Lovable (cdn.gpteng.co) e imagens externas de OG.
+// Foco: defesa em profundidade — bloqueia clickjacking, MIME sniffing, mixed content,
+// vazamento de referrer e uso de APIs sensíveis do navegador.
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.gpteng.co https://*.lovable.app https://*.lovable.dev",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "img-src 'self' data: blob: https:",
+  "connect-src 'self' https: wss:",
+  "frame-src 'self' https:",
+  "frame-ancestors 'none'",
+  "form-action 'self' https://pay.cakto.com.br",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "upgrade-insecure-requests",
+].join("; ");
+
+const securityHeadersMiddleware = createMiddleware().server(async ({ next }) => {
+  const response = await next();
+  // Alguns middlewares retornam objetos internos do TanStack, não Response. Só ajustamos Response.
+  if (!(response instanceof Response)) return response;
+  const headers = new Headers(response.headers);
+  headers.set("Content-Security-Policy", CSP);
+  headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("X-Frame-Options", "DENY");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+  );
+  headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  headers.set("X-DNS-Prefetch-Control", "on");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+});
+
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth],
-  requestMiddleware: [errorMiddleware],
+  requestMiddleware: [securityHeadersMiddleware, errorMiddleware],
 }));
