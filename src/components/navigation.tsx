@@ -32,6 +32,9 @@ export function Navigation() {
         </nav>
 
         <div className="hidden md:flex items-center gap-2">
+          <Link to="/auth">
+            <Button size="sm" variant="ghost">Entrar</Button>
+          </Link>
           <a href={quarterly.checkoutUrl} target="_blank" rel="noopener noreferrer">
             <Button size="sm">Assinar</Button>
           </a>
@@ -54,6 +57,9 @@ export function Navigation() {
               {l.label}
             </Link>
           ))}
+          <Link to="/auth" onClick={() => setOpen(false)}>
+            <Button size="sm" variant="outline" className="w-full mt-2">Entrar</Button>
+          </Link>
           <a href={quarterly.checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}>
             <Button size="sm" className="w-full mt-2">Assinar</Button>
           </a>
