@@ -1,174 +1,177 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
+import { motion } from "motion/react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import { Download, Key, LifeBuoy, User, CheckCircle2, Loader2, Copy, LogOut } from "lucide-react";
-import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Home, User as UserIcon, Settings, LogOut, Loader2, Sparkles, Menu, X, LifeBuoy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import type { User as AuthUser } from "@supabase/supabase-js";
+import { useUser, initialsOf } from "@/hooks/use-user";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/dashboard")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Dashboard — Lovable Spark" }, { name: "description", content: "Gerencie sua licença, downloads e suporte." }] }),
-  component: Dashboard,
+  head: () => ({ meta: [{ title: "Dashboard — Lovable Spark" }, { name: "robots", content: "noindex" }] }),
+  component: DashboardLayout,
 });
 
-const SIDE = [
-  { icon: Key, label: "Licença", key: "license" },
-  { icon: Download, label: "Downloads", key: "downloads" },
-  { icon: LifeBuoy, label: "Suporte", key: "support" },
-  { icon: User, label: "Minha Conta", key: "account" },
+const NAV = [
+  { to: "/dashboard", label: "Visão geral", icon: Home, exact: true },
+  { to: "/dashboard/profile", label: "Meu perfil", icon: UserIcon },
+  { to: "/dashboard/settings", label: "Configurações", icon: Settings },
 ];
 
-const VERSIONS = [
-  { v: "3.1.0", date: "10 Jul 2026", size: "2.4 MB", status: "Atual" },
-  { v: "3.0.2", date: "22 Jun 2026", size: "2.3 MB", status: "Anterior" },
-  { v: "3.0.0", date: "01 Jun 2026", size: "2.3 MB", status: "Legado" },
-];
-
-const PLAN_LABEL: Record<string, string> = {
-  monthly: "Mensal",
-  quarterly: "Trimestral",
-  annual: "Anual",
-};
-
-type Sub = { plan_slug: string; status: string; expires_at: string | null };
-type Lic = { key: string; status: string; expires_at: string | null };
-
-function Dashboard() {
+function DashboardLayout() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [sub, setSub] = useState<Sub | null>(null);
-  const [license, setLicense] = useState<Lic | null>(null);
+  const { user, profile, avatarUrl, loading } = useUser();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   useEffect(() => {
-    let alive = true;
-    (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { navigate({ to: "/auth" }); return; }
-      if (!alive) return;
-      setUser(session.user);
-
-      const [{ data: subs }, { data: lics }] = await Promise.all([
-        supabase.from("subscriptions").select("plan_slug,status,expires_at").eq("user_id", session.user.id).order("created_at", { ascending: false }).limit(1),
-        supabase.from("licenses").select("key,status,expires_at").eq("user_id", session.user.id).eq("status", "active").limit(1),
-      ]);
-      if (!alive) return;
-      setSub(subs?.[0] ?? null);
-      setLicense(lics?.[0] ?? null);
-      setLoading(false);
-    })();
-    return () => { alive = false; };
-  }, [navigate]);
+    if (!loading && !user) navigate({ to: "/auth" });
+  }, [loading, user, navigate]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
     navigate({ to: "/auth" });
   };
 
-  const copy = async () => {
-    if (!license) return;
-    await navigator.clipboard.writeText(license.key);
-    toast.success("Chave copiada");
-  };
-
-  if (loading) {
-    return <div className="mx-auto max-w-6xl px-4 py-24 flex items-center justify-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin mr-2" /> Carregando…</div>;
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
+        <Loader2 className="h-5 w-5 animate-spin mr-2" /> Carregando…
+      </div>
+    );
   }
 
-  const name = (user?.user_metadata?.full_name as string) || user?.email?.split("@")[0] || "Usuário";
-  const initials = name.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
-  const planLabel = sub ? PLAN_LABEL[sub.plan_slug] ?? sub.plan_slug : null;
-  const expires = sub?.expires_at ? new Date(sub.expires_at).toLocaleDateString("pt-BR") : null;
+  const displayName = profile?.full_name || user.email?.split("@")[0] || "Usuário";
+  const initials = initialsOf(profile?.full_name, user.email);
+
+  const isActive = (to: string, exact?: boolean) => (exact ? pathname === to : pathname.startsWith(to));
+
+  const SidebarInner = (
+    <div className="flex h-full flex-col gap-6 p-5">
+      <Link to="/" className="flex items-center gap-2.5 text-[15px] font-semibold tracking-tight">
+        <span className="relative flex h-7 w-7 items-center justify-center rounded-md bg-gradient-brand">
+          <Sparkles className="relative h-3.5 w-3.5 text-white" />
+        </span>
+        <span className="font-display">Spark</span>
+      </Link>
+
+      <nav className="flex flex-col gap-1">
+        {NAV.map((item) => (
+          <Link
+            key={item.to}
+            to={item.to}
+            className={cn(
+              "flex items-center gap-3 rounded-md px-3 py-2 text-[13px] transition-colors",
+              isActive(item.to, item.exact)
+                ? "bg-white/[0.06] text-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]",
+            )}
+          >
+            <item.icon className="h-4 w-4" />
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+
+      <div className="mt-auto">
+        <Link
+          to="/contact"
+          className="flex items-center gap-3 rounded-md px-3 py-2 text-[13px] text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"
+        >
+          <LifeBuoy className="h-4 w-4" /> Suporte
+        </Link>
+        <div className="mt-3 flex items-center gap-3 rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
+          <Avatar className="h-9 w-9">
+            {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} />}
+            <AvatarFallback className="bg-primary/15 text-primary text-xs">{initials}</AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[13px] font-medium">{displayName}</div>
+            <div className="truncate text-[11px] text-muted-foreground">{user.email}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold">Olá, {name} 👋</h1>
-          <p className="text-sm text-muted-foreground">Bem-vindo de volta ao seu painel Spark.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="text-right hidden sm:block">
-            <div className="text-sm font-medium">{name}</div>
-            <div className="text-xs text-muted-foreground">{user?.email}</div>
-          </div>
-          <Avatar><AvatarFallback className="bg-primary/15 text-primary">{initials}</AvatarFallback></Avatar>
-          <Button size="sm" variant="ghost" onClick={signOut}><LogOut className="h-4 w-4" /></Button>
-        </div>
-      </div>
+    <div className="flex min-h-screen bg-background text-foreground">
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex fixed inset-y-0 left-0 z-30 w-64 border-r border-white/[0.06] bg-[#0a0a0f]">
+        {SidebarInner}
+      </aside>
 
-      <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
-        <aside className="space-y-1">
-          {SIDE.map((s) => (
-            <button key={s.key} className="flex w-full items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-accent text-left">
-              <s.icon className="h-4 w-4" /> {s.label}
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          <div className="fixed inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
+          <aside className="relative w-72 max-w-[80%] border-r border-white/[0.06] bg-[#0a0a0f]">{SidebarInner}</aside>
+        </div>
+      )}
+
+      <div className="flex-1 lg:pl-64">
+        <header className="sticky top-0 z-20 flex h-14 items-center justify-between gap-4 border-b border-white/[0.06] bg-background/70 px-5 backdrop-blur-xl">
+          <div className="flex items-center gap-2">
+            <button className="lg:hidden p-2 -ml-2" onClick={() => setMobileOpen(true)} aria-label="Abrir menu">
+              <Menu className="h-5 w-5" />
             </button>
-          ))}
-        </aside>
+            <span className="text-[13px] text-muted-foreground hidden sm:inline">
+              {NAV.find((n) => isActive(n.to, n.exact))?.label ?? "Dashboard"}
+            </span>
+          </div>
 
-        <div className="space-y-6">
-          <Card className="p-6">
-            <div className="flex items-start justify-between flex-wrap gap-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  {license ? (
-                    <Badge className="bg-primary/15 text-primary border-0"><CheckCircle2 className="h-3 w-3 mr-1" /> Licença ativa</Badge>
-                  ) : (
-                    <Badge variant="secondary">Sem licença ativa</Badge>
-                  )}
-                  {planLabel && <span className="text-xs text-muted-foreground">{planLabel}{expires ? ` · expira em ${expires}` : ""}</span>}
-                </div>
-                <h2 className="mt-3 text-xl font-semibold">Lovable Spark v3.1.0</h2>
-                {license ? (
-                  <div className="mt-2 flex items-center gap-2">
-                    <code className="rounded bg-muted px-2 py-1 text-sm text-foreground">{license.key}</code>
-                    <Button size="sm" variant="ghost" onClick={copy}><Copy className="h-3.5 w-3.5" /></Button>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground mt-2">Escolha um plano para receber sua chave de licença.</p>
-                )}
-              </div>
-              <Button disabled={!license}><Download className="mr-2 h-4 w-4" /> Baixar .crx</Button>
-            </div>
-          </Card>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 rounded-full p-1 pr-3 hover:bg-white/[0.04]">
+                <Avatar className="h-7 w-7">
+                  {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} />}
+                  <AvatarFallback className="bg-primary/15 text-primary text-[10px]">{initials}</AvatarFallback>
+                </Avatar>
+                <span className="hidden sm:inline text-[13px] font-medium">{displayName}</span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="font-normal">
+                <div className="text-sm font-medium">{displayName}</div>
+                <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild><Link to="/dashboard/profile"><UserIcon className="mr-2 h-4 w-4" /> Meu perfil</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link to="/dashboard"><Home className="mr-2 h-4 w-4" /> Dashboard</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link to="/dashboard/settings"><Settings className="mr-2 h-4 w-4" /> Configurações</Link></DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
+                <LogOut className="mr-2 h-4 w-4" /> Sair
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </header>
 
-          <Card className="p-6">
-            <h3 className="font-semibold mb-4">Histórico de versões</h3>
-            <table className="w-full text-sm">
-              <thead className="text-left text-muted-foreground text-xs uppercase">
-                <tr><th className="py-2">Versão</th><th>Data</th><th>Tamanho</th><th>Status</th><th></th></tr>
-              </thead>
-              <tbody>
-                {VERSIONS.map((v) => (
-                  <tr key={v.v} className="border-t border-border/60">
-                    <td className="py-3 font-medium">v{v.v}</td>
-                    <td>{v.date}</td>
-                    <td>{v.size}</td>
-                    <td><Badge variant="secondary">{v.status}</Badge></td>
-                    <td className="text-right"><Button size="sm" variant="ghost" disabled={!license}><Download className="h-4 w-4" /></Button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
-
-          <Card className="p-6">
-            <h3 className="font-semibold mb-3">Informações da conta</h3>
-            <Separator className="mb-4" />
-            <dl className="grid gap-3 sm:grid-cols-2 text-sm">
-              <div><dt className="text-muted-foreground">Nome</dt><dd>{name}</dd></div>
-              <div><dt className="text-muted-foreground">Email</dt><dd>{user?.email}</dd></div>
-              <div><dt className="text-muted-foreground">Plano</dt><dd>{planLabel ?? "—"}</dd></div>
-              <div><dt className="text-muted-foreground">Status</dt><dd>{sub?.status ?? "sem assinatura"}</dd></div>
-            </dl>
-          </Card>
-        </div>
+        <motion.main
+          key={pathname}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="mx-auto max-w-6xl px-5 py-8"
+        >
+          <Outlet />
+        </motion.main>
       </div>
+
+      {/* mobile menu close button — sr fallback */}
+      <button className="sr-only" onClick={() => setMobileOpen(false)} aria-hidden><X /></button>
     </div>
   );
 }
