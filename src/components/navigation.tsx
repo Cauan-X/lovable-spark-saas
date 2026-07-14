@@ -1,15 +1,72 @@
-import { Link } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Menu, X, User as UserIcon, Settings, LayoutDashboard, LogOut } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { NAV_LINKS } from "@/lib/site-data";
+import { useUser, initialsOf } from "@/hooks/use-user";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Navigation() {
   const [open, setOpen] = useState(false);
+  const { user, profile, avatarUrl } = useUser();
+  const navigate = useNavigate();
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/" });
+  };
+  const displayName = profile?.full_name || user?.email?.split("@")[0] || "";
+  const initials = initialsOf(profile?.full_name, user?.email);
+
+  const UserMenu = user ? (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="flex items-center gap-2 rounded-full p-1 pr-3 hover:bg-white/[0.04] transition-colors">
+          <Avatar className="h-7 w-7">
+            {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} />}
+            <AvatarFallback className="bg-primary/15 text-primary text-[10px]">{initials}</AvatarFallback>
+          </Avatar>
+          <span className="text-[13px] font-medium max-w-[120px] truncate">{displayName}</span>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuLabel className="font-normal">
+          <div className="text-sm font-medium truncate">{displayName}</div>
+          <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild><Link to="/dashboard/profile"><UserIcon className="mr-2 h-4 w-4" /> Meu perfil</Link></DropdownMenuItem>
+        <DropdownMenuItem asChild><Link to="/dashboard"><LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard</Link></DropdownMenuItem>
+        <DropdownMenuItem asChild><Link to="/dashboard/settings"><Settings className="mr-2 h-4 w-4" /> Configurações</Link></DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
+          <LogOut className="mr-2 h-4 w-4" /> Sair
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  ) : null;
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-white/[0.06] bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-        <Link to="/" className="flex items-center gap-2.5 text-[15px] font-semibold tracking-tight">
+        <div className="flex items-center gap-4">
+          {user && (
+            <div className="md:hidden">
+              <Avatar className="h-7 w-7">
+                {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} />}
+                <AvatarFallback className="bg-primary/15 text-primary text-[10px]">{initials}</AvatarFallback>
+              </Avatar>
+            </div>
+          )}
+          <Link to="/" className="flex items-center gap-2.5 text-[15px] font-semibold tracking-tight">
           <span className="relative flex h-6 w-6 items-center justify-center rounded-md bg-gradient-brand">
             <span className="absolute inset-0 rounded-md bg-gradient-brand opacity-60 blur-md" />
             <svg viewBox="0 0 24 24" className="relative h-3.5 w-3.5 text-white" fill="currentColor" aria-hidden>
@@ -17,7 +74,8 @@ export function Navigation() {
             </svg>
           </span>
           <span>Spark</span>
-        </Link>
+          </Link>
+        </div>
 
         <nav className="hidden md:flex items-center gap-1">
           {NAV_LINKS.map((l) => (
@@ -33,14 +91,20 @@ export function Navigation() {
         </nav>
 
         <div className="hidden md:flex items-center gap-2">
-          <Link to="/auth" className="text-[13px] text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5">
-            Entrar
-          </Link>
-          <Link to="/" hash="pricing">
-            <Button size="sm" className="h-8 rounded-md bg-white text-black hover:bg-white/90 text-[13px] font-medium px-3.5">
-              Ver planos
-            </Button>
-          </Link>
+          {user ? (
+            UserMenu
+          ) : (
+            <>
+              <Link to="/auth" className="text-[13px] text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5">
+                Entrar
+              </Link>
+              <Link to="/" hash="pricing">
+                <Button size="sm" className="h-8 rounded-md bg-white text-black hover:bg-white/90 text-[13px] font-medium px-3.5">
+                  Ver planos
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
 
         <button className="md:hidden p-2" onClick={() => setOpen(!open)} aria-label="Menu">
@@ -60,12 +124,22 @@ export function Navigation() {
               {l.label}
             </Link>
           ))}
-          <Link to="/auth" onClick={() => setOpen(false)}>
-            <Button size="sm" variant="outline" className="w-full mt-2">Entrar</Button>
-          </Link>
-          <Link to="/" hash="pricing" onClick={() => setOpen(false)}>
-            <Button size="sm" className="w-full mt-2 bg-white text-black hover:bg-white/90">Ver planos</Button>
-          </Link>
+          {user ? (
+            <>
+              <Link to="/dashboard/profile" onClick={() => setOpen(false)} className="block px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-white/[0.04]">Meu perfil</Link>
+              <Link to="/dashboard/settings" onClick={() => setOpen(false)} className="block px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-white/[0.04]">Configurações</Link>
+              <button onClick={() => { setOpen(false); signOut(); }} className="block w-full text-left px-3 py-2 rounded-md text-sm text-destructive hover:bg-white/[0.04]">Sair</button>
+            </>
+          ) : (
+            <>
+              <Link to="/auth" onClick={() => setOpen(false)}>
+                <Button size="sm" variant="outline" className="w-full mt-2">Entrar</Button>
+              </Link>
+              <Link to="/" hash="pricing" onClick={() => setOpen(false)}>
+                <Button size="sm" className="w-full mt-2 bg-white text-black hover:bg-white/90">Ver planos</Button>
+              </Link>
+            </>
+          )}
         </div>
       )}
     </header>
