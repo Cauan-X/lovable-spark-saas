@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Mail, MessageCircle, Send, Loader2, Check } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({ meta: [{ title: "Contato — Lovable Spark" }, { name: "description", content: "Fale com nosso suporte via Telegram, WhatsApp, email ou formulário." }] }),
@@ -23,7 +25,21 @@ const FAQ = [
 function Contact() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
-  const onSubmit = (e: React.FormEvent) => { e.preventDefault(); setLoading(true); setTimeout(() => { setLoading(false); setSent(true); }, 1200); };
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
+    const fd = new FormData(form);
+    setLoading(true);
+    const { error } = await supabase.from("contacts").insert({
+      name: String(fd.get("name") ?? ""),
+      email: String(fd.get("email") ?? ""),
+      subject: String(fd.get("subject") ?? ""),
+      message: String(fd.get("message") ?? ""),
+    });
+    setLoading(false);
+    if (error) { toast.error("Não foi possível enviar. Tente novamente."); return; }
+    setSent(true);
+  };
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
@@ -41,11 +57,11 @@ function Contact() {
           ) : (
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
-                <div><Label htmlFor="n">Nome</Label><Input id="n" required /></div>
-                <div><Label htmlFor="e">Email</Label><Input id="e" type="email" required /></div>
+                <div><Label htmlFor="n">Nome</Label><Input id="n" name="name" required /></div>
+                <div><Label htmlFor="e">Email</Label><Input id="e" name="email" type="email" required /></div>
               </div>
-              <div><Label htmlFor="s">Assunto</Label><Input id="s" required /></div>
-              <div><Label htmlFor="m">Mensagem</Label><Textarea id="m" rows={6} required /></div>
+              <div><Label htmlFor="s">Assunto</Label><Input id="s" name="subject" required /></div>
+              <div><Label htmlFor="m">Mensagem</Label><Textarea id="m" name="message" rows={6} required /></div>
               <Button type="submit" disabled={loading}>{loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Enviando</> : <>Enviar <Send className="ml-2 h-4 w-4" /></>}</Button>
             </form>
           )}

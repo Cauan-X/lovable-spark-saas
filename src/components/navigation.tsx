@@ -2,7 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { Sparkles, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { NAV_LINKS } from "@/lib/site-data";
+import { NAV_LINKS, PLANS } from "@/lib/site-data";
+
+const quarterly = PLANS.find((p) => p.id === "quarterly")!;
 
 export function Navigation() {
   const [open, setOpen] = useState(false);
@@ -30,9 +32,12 @@ export function Navigation() {
         </nav>
 
         <div className="hidden md:flex items-center gap-2">
-          <Link to="/checkout" search={{ plan: "quarterly" }}>
-            <Button size="sm">Assinar</Button>
+          <Link to="/auth">
+            <Button size="sm" variant="ghost">Entrar</Button>
           </Link>
+          <a href={quarterly.checkoutUrl} target="_blank" rel="noopener noreferrer">
+            <Button size="sm">Assinar</Button>
+          </a>
         </div>
 
         <button className="md:hidden p-2" onClick={() => setOpen(!open)} aria-label="Menu">
@@ -52,9 +57,12 @@ export function Navigation() {
               {l.label}
             </Link>
           ))}
-          <Link to="/checkout" search={{ plan: "quarterly" }} onClick={() => setOpen(false)}>
-            <Button size="sm" className="w-full mt-2">Assinar</Button>
+          <Link to="/auth" onClick={() => setOpen(false)}>
+            <Button size="sm" variant="outline" className="w-full mt-2">Entrar</Button>
           </Link>
+          <a href={quarterly.checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}>
+            <Button size="sm" className="w-full mt-2">Assinar</Button>
+          </a>
         </div>
       )}
     </header>
