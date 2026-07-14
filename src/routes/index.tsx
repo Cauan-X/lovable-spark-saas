@@ -30,11 +30,11 @@ function Index() {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/20 via-background to-background" />
         <div className="mx-auto max-w-5xl px-4 py-24 text-center">
-          <Badge variant="secondary" className="mb-6">
-            <Sparkles className="h-3 w-3 mr-1" /> v3.1.0 disponível
+          <Badge variant="secondary" className="mb-6 border-border/60">
+            <Sparkles className="h-3 w-3 mr-1 text-gradient-brand" /> v3.1.0 disponível
           </Badge>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-            Turbine o <span className="text-primary">Lovable.dev</span><br />
+            Turbine o <span className="text-gradient-brand">Lovable.dev</span><br />
             com um único clique.
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -46,7 +46,7 @@ function Index() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Button size="lg">Começar agora <ArrowRight className="ml-2 h-4 w-4" /></Button>
+              <Button size="lg" className="bg-gradient-brand bg-gradient-brand-hover border-0">Começar agora <ArrowRight className="ml-2 h-4 w-4" /></Button>
             </a>
             <Link to="/docs">
               <Button size="lg" variant="outline">Ver documentação</Button>
