@@ -41,9 +41,13 @@ function Index() {
             A extensão Chrome preferida por desenvolvedores brasileiros. Injete prompts, otimize com IA, proteja créditos e baixe seu código sem sair da aba.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link to="/checkout" search={{ plan: "quarterly" }}>
+            <a
+              href={PLANS.find((p) => p.id === "quarterly")!.checkoutUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Button size="lg">Começar agora <ArrowRight className="ml-2 h-4 w-4" /></Button>
-            </Link>
+            </a>
             <Link to="/docs">
               <Button size="lg" variant="outline">Ver documentação</Button>
             </Link>
@@ -92,11 +96,16 @@ function Index() {
                   </li>
                 ))}
               </ul>
-              <Link to="/checkout" search={{ plan: p.id }} className="block mt-6">
+              <a
+                href={p.checkoutUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block mt-6"
+              >
                 <Button className="w-full" variant={p.highlight ? "default" : "outline"}>
-                  Escolher {p.name}
+                  Assinar {p.name}
                 </Button>
-              </Link>
+              </a>
             </Card>
           ))}
         </div>
