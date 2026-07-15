@@ -764,3 +764,481 @@ function CTA() {
     </section>
   );
 }
+
+/* ---------------- VALUE PROPS (proposta de valor) ---------------- */
+
+function ValueProps() {
+  const items = [
+    { icon: Rocket, k: "3×", l: "mais rápido para enviar um prompt refinado" },
+    { icon: ShieldCheck, k: "R$ 47", l: "de créditos salvos por dia com o Shield" },
+    { icon: Cpu, k: "5 em 1", l: "ferramentas premium em uma extensão" },
+  ];
+  return (
+    <section className="relative border-y border-white/[0.06] bg-background/60">
+      <div className="mx-auto max-w-6xl px-6 py-14 md:py-16 grid gap-8 md:grid-cols-3">
+        {items.map((it, i) => (
+          <motion.div
+            key={it.l}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.6, ease: [0.2, 0.7, 0.2, 1] as const, delay: i * 0.08 }}
+            className="flex items-start gap-4"
+          >
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03]">
+              <it.icon className="h-5 w-5 text-primary" />
+            </span>
+            <div className="min-w-0">
+              <div className="font-display text-2xl md:text-3xl tracking-[-0.02em]">{it.k}</div>
+              <div className="mt-1 text-sm text-muted-foreground">{it.l}</div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- MOCKUPS (notebook + phone) ---------------- */
+
+function MockupsSection() {
+  const primary = PLANS.find((p) => p.id === "quarterly")!;
+  return (
+    <section className="relative py-28 md:py-36 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10 grid-bg opacity-60" />
+      <div className="pointer-events-none absolute left-1/2 top-1/3 -z-10 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(139,92,246,0.16),transparent_70%)] blur-3xl" />
+
+      <div className="mx-auto max-w-3xl px-6 text-center">
+        <motion.div {...fadeUp}>
+          <div className="text-[11px] uppercase tracking-[0.2em] text-primary/90">Em ação</div>
+          <h2 className="mt-4 font-display text-4xl md:text-5xl tracking-[-0.03em] font-semibold leading-[1.05]">
+            <span className="text-gradient-fade">Funciona em qualquer lugar</span>
+            <br />
+            que o Lovable roda.
+          </h2>
+          <p className="mt-4 text-muted-foreground">
+            Do desktop ao celular — mesma experiência, mesma velocidade, mesma proteção.
+          </p>
+        </motion.div>
+      </div>
+
+      <div className="relative mx-auto mt-16 max-w-6xl px-6">
+        {/* notebook */}
+        <motion.div
+          initial={{ opacity: 0, y: 30, scale: 0.98 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 1, ease: [0.2, 0.7, 0.2, 1] as const }}
+          className="relative mx-auto max-w-4xl"
+        >
+          <div className="glass-card rounded-2xl overflow-hidden shadow-[0_60px_120px_-40px_rgba(0,0,0,0.9)]">
+            <div className="flex items-center gap-2 border-b border-white/[0.06] bg-white/[0.02] px-4 py-2.5">
+              <div className="flex gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-white/10" />
+                <span className="h-2.5 w-2.5 rounded-full bg-white/10" />
+                <span className="h-2.5 w-2.5 rounded-full bg-white/10" />
+              </div>
+              <div className="ml-3 flex-1 flex justify-center">
+                <div className="rounded-md border border-white/[0.06] bg-black/40 px-3 py-1 text-[11px] font-mono text-muted-foreground">
+                  lovable.dev / <span className="text-foreground">projeto/spark</span>
+                </div>
+              </div>
+            </div>
+            <div className="relative aspect-[16/9] bg-gradient-to-b from-black/40 to-black/70">
+              <div className="absolute inset-0 grid-bg opacity-40" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-[62%] rounded-xl border border-white/[0.08] bg-black/60 backdrop-blur-xl p-5 shadow-[0_20px_60px_-20px_rgba(139,92,246,0.4)]">
+                  <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-primary">
+                    <Wand2 className="h-3.5 w-3.5" /> Prompt Optimizer
+                  </div>
+                  <div className="mt-3 rounded-md border border-white/[0.06] bg-black/50 p-3 font-mono text-[12px] leading-relaxed">
+                    <div className="text-muted-foreground">// entrada</div>
+                    <div className="text-foreground/80 line-through">landing bonita para saas</div>
+                    <div className="mt-2 text-muted-foreground">// spark</div>
+                    <div className="text-foreground">
+                      Design a <span className="text-[#a78bfa]">premium dark-mode</span> SaaS landing with
+                      oversized hero, subtle grid, ambient violet glow…
+                      <span className="ml-0.5 inline-block h-3 w-1.5 translate-y-0.5 animate-pulse bg-primary" />
+                    </div>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2 text-[11px]">
+                    <span className="rounded border border-white/[0.06] bg-white/[0.03] px-1.5 py-0.5 text-muted-foreground">claude-sonnet-4</span>
+                    <span className="rounded border border-white/[0.06] bg-white/[0.03] px-1.5 py-0.5 text-muted-foreground">1.284 tokens</span>
+                    <span className="ml-auto inline-flex items-center gap-1 text-emerald-400/90">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> otimizado
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* notebook base */}
+          <div className="mx-auto h-3 w-[85%] rounded-b-2xl bg-gradient-to-b from-white/[0.06] to-transparent" />
+        </motion.div>
+
+        {/* phone */}
+        <motion.div
+          initial={{ opacity: 0, y: 40, rotate: -3 }}
+          whileInView={{ opacity: 1, y: 0, rotate: -6 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 1, ease: [0.2, 0.7, 0.2, 1] as const, delay: 0.15 }}
+          className="absolute -right-2 md:-right-6 -bottom-10 md:bottom-6 w-[180px] md:w-[220px] hidden sm:block"
+        >
+          <div className="relative rounded-[32px] border border-white/[0.08] bg-black shadow-[0_40px_80px_-30px_rgba(139,92,246,0.5)] overflow-hidden">
+            <div className="absolute inset-x-14 top-2 h-4 rounded-full bg-black/80 z-10" />
+            <div className="aspect-[9/19] bg-gradient-to-b from-[#0f0f14] to-black p-4 pt-8">
+              <div className="mt-3 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-3">
+                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-primary">
+                  <Shield className="h-3 w-3" /> Shield
+                </div>
+                <div className="mt-1.5 font-display text-lg">Ativo</div>
+                <div className="mt-2 h-1 rounded-full bg-white/[0.06] overflow-hidden">
+                  <div className="h-full w-3/4 rounded-full bg-gradient-brand" />
+                </div>
+              </div>
+              <div className="mt-3 space-y-2 text-[10px] font-mono text-muted-foreground">
+                {["blocked · loop", "allowed · 96t", "blocked · empty", "allowed · 128t"].map((r) => (
+                  <div key={r} className="rounded-md border border-white/[0.05] bg-black/40 px-2 py-1">{r}</div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* CTA reinforcement */}
+      <div className="mx-auto mt-24 max-w-3xl px-6 text-center">
+        <a href={primary.checkoutUrl} target="_blank" rel="noopener noreferrer">
+          <Button className="h-11 rounded-md bg-white text-black hover:bg-white/90 text-[14px] font-medium px-5 shadow-[0_0_40px_-8px_rgba(255,255,255,0.35)]">
+            Instalar Spark <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </a>
+        <div className="mt-3 text-xs text-muted-foreground">Setup em 20 segundos · Cancele quando quiser</div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- BENEFITS (foco em resultado) ---------------- */
+
+function Benefits() {
+  const list = [
+    {
+      icon: Rocket,
+      title: "Envie 3× mais rápido",
+      desc: "Atalhos globais, prompts salvos e refinamento automático eliminam o tempo perdido entre pensar e enviar.",
+    },
+    {
+      icon: ShieldCheck,
+      title: "Nunca perca crédito",
+      desc: "Cliques duplos, loops e prompts vazios são bloqueados antes de sair da sua máquina.",
+    },
+    {
+      icon: Gauge,
+      title: "Prompts que convertem",
+      desc: "IA especializada refina intenção e força padrões — você recebe resultado de senior no primeiro shot.",
+    },
+    {
+      icon: Download,
+      title: "Seu código, sempre seu",
+      desc: "Exporte o projeto inteiro em .zip a qualquer momento. Sem lock-in, sem drama.",
+    },
+    {
+      icon: EyeOff,
+      title: "Demos limpas para o cliente",
+      desc: "Remova marcas d'água em previews e apresente como se fosse produção.",
+    },
+    {
+      icon: Layers,
+      title: "Uma extensão, todo o kit",
+      desc: "Cinco ferramentas ajustadas ao milímetro. Uma assinatura. Zero add-ons escondidos.",
+    },
+  ];
+  return (
+    <section className="mx-auto max-w-6xl px-6 py-28 md:py-36">
+      <motion.div {...fadeUp} className="max-w-2xl">
+        <div className="text-[11px] uppercase tracking-[0.2em] text-primary/90">Benefícios</div>
+        <h2 className="mt-4 font-display text-4xl md:text-5xl tracking-[-0.03em] font-semibold">
+          O que muda no seu dia
+          <br />
+          <span className="text-gradient-fade">a partir de hoje.</span>
+        </h2>
+      </motion.div>
+      <div className="mt-16 grid gap-4 md:grid-cols-3">
+        {list.map((b, i) => (
+          <motion.div
+            key={b.title}
+            initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
+            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.6, ease: [0.2, 0.7, 0.2, 1] as const, delay: i * 0.06 }}
+            className="glass-card hover-lift rounded-xl p-6"
+          >
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03]">
+              <b.icon className="h-5 w-5 text-primary" />
+            </span>
+            <h3 className="mt-5 font-display text-lg tracking-tight">{b.title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{b.desc}</p>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- HOW IT WORKS ---------------- */
+
+function HowItWorks() {
+  const steps = [
+    {
+      n: "01",
+      icon: Puzzle,
+      title: "Instale a extensão",
+      desc: "Adicione o Spark ao Chrome em 20 segundos. Sem cadastro obrigatório para começar.",
+    },
+    {
+      n: "02",
+      icon: Command,
+      title: "Abra qualquer projeto Lovable",
+      desc: "Spark detecta automaticamente o editor e injeta os controles direto na interface.",
+    },
+    {
+      n: "03",
+      icon: Sparkles,
+      title: "Envie prompts de alto nível",
+      desc: "Otimize com IA, ative o Shield, dispare do ⌘K. Cada envio vira resultado sênior.",
+    },
+  ];
+  return (
+    <section className="relative border-y border-white/[0.06] bg-background/40 py-28 md:py-36">
+      <div className="mx-auto max-w-6xl px-6">
+        <motion.div {...fadeUp} className="max-w-2xl">
+          <div className="text-[11px] uppercase tracking-[0.2em] text-primary/90">Como funciona</div>
+          <h2 className="mt-4 font-display text-4xl md:text-5xl tracking-[-0.03em] font-semibold">
+            Do zero ao primeiro prompt
+            <br />
+            <span className="text-gradient-fade">em menos de um minuto.</span>
+          </h2>
+        </motion.div>
+
+        <div className="mt-16 grid gap-6 md:grid-cols-3">
+          {steps.map((s, i) => (
+            <motion.div
+              key={s.n}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.6, ease: [0.2, 0.7, 0.2, 1] as const, delay: i * 0.1 }}
+              className="relative glass-card hover-lift rounded-2xl p-8"
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[11px] tracking-widest text-primary/80">{s.n}</span>
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03]">
+                  <s.icon className="h-4 w-4 text-primary" />
+                </span>
+              </div>
+              <h3 className="mt-8 font-display text-2xl tracking-[-0.02em]">{s.title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- DASHBOARD DEMO (área do cliente) ---------------- */
+
+function DashboardDemo() {
+  return (
+    <section className="relative py-28 md:py-36 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10 grid-bg opacity-50" />
+      <div className="mx-auto max-w-6xl px-6 grid gap-16 md:grid-cols-2 md:gap-24 items-center">
+        <motion.div {...fadeUp}>
+          <div className="text-[11px] uppercase tracking-[0.2em] text-primary/90">Área do cliente</div>
+          <h2 className="mt-4 font-display text-4xl md:text-[52px] leading-[1.05] tracking-[-0.035em] font-semibold">
+            Sua licença, seu plano,
+            <br />
+            <span className="text-gradient-fade">tudo no mesmo lugar.</span>
+          </h2>
+          <p className="mt-5 text-muted-foreground max-w-md">
+            Um painel calmo e direto: chave de ativação, status da assinatura,
+            histórico de downloads e configurações. Sem fricção, sem ruído.
+          </p>
+          <ul className="mt-6 space-y-3 text-sm">
+            {[
+              "Chave de licença sempre à mão",
+              "Renovação e histórico da assinatura",
+              "Download do .crx e versões anteriores",
+              "Suporte prioritário integrado",
+            ].map((f) => (
+              <li key={f} className="flex items-center gap-3 text-foreground/90">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
+                  <Check className="h-3 w-3 text-primary" />
+                </span>
+                {f}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-8">
+            <Link to="/dashboard">
+              <Button className="h-11 rounded-md bg-white/[0.06] text-foreground hover:bg-white/[0.1] border border-white/[0.1] text-[14px] font-medium px-5">
+                Entrar no dashboard <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, x: 30, filter: "blur(6px)" }}
+          whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1] as const }}
+          className="glass-card rounded-2xl p-6 relative"
+        >
+          <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
+            <div>
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground/80">Boas-vindas</div>
+              <div className="mt-1 font-display text-xl">Olá, Rafael</div>
+            </div>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[11px] text-emerald-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]" /> Ativo
+            </span>
+          </div>
+
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Plano</div>
+              <div className="mt-1.5 font-display text-lg">Trimestral</div>
+              <div className="mt-1 text-[11px] text-muted-foreground">Renova 12/out</div>
+            </div>
+            <div className="rounded-xl border border-primary/30 bg-gradient-to-b from-primary/[0.1] to-transparent p-4">
+              <div className="text-[10px] uppercase tracking-widest text-primary">Licença</div>
+              <div className="mt-1.5 font-mono text-[13px]">SPARK-9K2A-XR7Q-1D8Z</div>
+              <div className="mt-1 text-[11px] text-muted-foreground">2 de 2 dispositivos</div>
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-xl border border-white/[0.06] bg-black/30 p-4">
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Downloads recentes</div>
+            <div className="mt-3 space-y-2 text-[12px]">
+              {[
+                ["spark_v3.1.0.crx", "hoje"],
+                ["spark_v3.0.5.crx", "há 12 dias"],
+                ["spark_v3.0.3.crx", "há 1 mês"],
+              ].map(([f, t]) => (
+                <div key={f} className="flex items-center justify-between border-b border-white/[0.04] pb-2 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-2 text-foreground/85">
+                    <Download className="h-3.5 w-3.5 text-primary" /> {f}
+                  </div>
+                  <span className="text-muted-foreground">{t}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- TESTIMONIALS ---------------- */
+
+function Testimonials() {
+  const quotes = [
+    {
+      q: "O Shield sozinho paga a assinatura. Parei de perder crédito com clique duplo em reunião.",
+      n: "Marina Reis",
+      r: "Product Designer · Loft",
+      i: "MR",
+    },
+    {
+      q: "Meu output triplicou. O Optimizer transforma prompts preguiçosos em briefings sérios.",
+      n: "Diego Amaral",
+      r: "Founder · Kombi Studio",
+      i: "DA",
+    },
+    {
+      q: "Finalmente uma extensão que respeita o fluxo. Sem popup, sem ruído — só velocidade.",
+      n: "Camila Nakamura",
+      r: "Tech Lead · Rappi",
+      i: "CN",
+    },
+  ];
+  return (
+    <section className="mx-auto max-w-6xl px-6 py-28 md:py-36">
+      <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto">
+        <div className="text-[11px] uppercase tracking-[0.2em] text-primary/90">Prova social</div>
+        <h2 className="mt-4 font-display text-4xl md:text-5xl tracking-[-0.03em] font-semibold">
+          Usado por quem <span className="text-gradient-fade">envia software.</span>
+        </h2>
+        <div className="mt-6 flex items-center justify-center gap-6 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+            ))}
+            <span className="ml-1 text-foreground">4.9</span>
+          </div>
+          <span className="h-3 w-px bg-white/10" />
+          <span>+2.400 desenvolvedores ativos</span>
+        </div>
+      </motion.div>
+
+      <div className="mt-16 grid gap-6 md:grid-cols-3">
+        {quotes.map((t, i) => (
+          <motion.div
+            key={t.n}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.6, ease: [0.2, 0.7, 0.2, 1] as const, delay: i * 0.08 }}
+            className="glass-card hover-lift rounded-2xl p-7 flex flex-col"
+          >
+            <Quote className="h-5 w-5 text-primary/70" />
+            <p className="mt-4 text-[15px] leading-relaxed text-foreground/90">"{t.q}"</p>
+            <div className="mt-6 flex items-center gap-3 pt-5 border-t border-white/[0.06]">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-brand text-[13px] font-medium">
+                {t.i}
+              </span>
+              <div>
+                <div className="text-sm font-medium">{t.n}</div>
+                <div className="text-[12px] text-muted-foreground">{t.r}</div>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- GUARANTEE ---------------- */
+
+function Guarantee() {
+  return (
+    <section className="relative py-20 md:py-24">
+      <div className="mx-auto max-w-5xl px-6">
+        <motion.div
+          {...fadeUp}
+          className="relative overflow-hidden rounded-3xl glass-card px-8 py-10 md:px-14 md:py-12"
+        >
+          <div className="pointer-events-none absolute -inset-y-10 -right-20 h-[280px] w-[280px] rounded-full bg-[radial-gradient(closest-side,rgba(139,92,246,0.25),transparent_70%)] blur-3xl" />
+          <div className="relative flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-10">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 shadow-[0_0_40px_-10px_rgba(139,92,246,0.6)]">
+              <ShieldCheck className="h-7 w-7 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[11px] uppercase tracking-[0.2em] text-primary/90">Garantia de 7 dias</div>
+              <h3 className="mt-2 font-display text-2xl md:text-3xl tracking-[-0.02em]">
+                Teste sem risco. Reembolso <span className="text-gradient-fade">integral em 7 dias.</span>
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground max-w-xl">
+                Se o Spark não acelerar seu fluxo, devolvemos 100% do valor. Sem perguntas, sem burocracia — basta abrir um chamado no seu dashboard.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
