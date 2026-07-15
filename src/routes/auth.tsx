@@ -18,11 +18,22 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Acesse sua área do cliente Lovable Spark." },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" ? s.next : "",
+  }),
   component: AuthPage,
 });
 
+// Only accept same-origin relative paths to prevent open-redirects.
+function safeNext(next: string): string {
+  if (!next.startsWith("/") || next.startsWith("//")) return "/dashboard";
+  return next;
+}
+
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
+  const target = safeNext(next);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -30,13 +41,13 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard" });
+      if (data.session) window.location.href = target;
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (session) navigate({ to: "/dashboard" });
+      if (session) window.location.href = target;
     });
     return () => sub.subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, target]);
 
   const onMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +56,7 @@ function AuthPage() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithOtp({
       email: parsed.data,
-      options: { emailRedirectTo: `${window.location.origin}/dashboard` },
+      options: { emailRedirectTo: `${window.location.origin}${target}` },
     });
     setLoading(false);
     if (error) { toast.error(prettyError(error)); return; }
@@ -67,7 +78,7 @@ function AuthPage() {
 
   const onGoogle = async () => {
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: `${window.location.origin}/auth?next=${encodeURIComponent(target)}`,
     });
     if (result.error) toast.error("Falha ao entrar com Google");
   };
