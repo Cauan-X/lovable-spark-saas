@@ -3,7 +3,6 @@ import {
   ArrowRight,
   ArrowUpRight,
   Check,
-  Command,
   Zap,
   Shield,
   Download,
@@ -13,6 +12,14 @@ import {
   Play,
   Terminal,
   Braces,
+  ShieldCheck,
+  Rocket,
+  Puzzle,
+  Cpu,
+  Star,
+  Quote,
+  Layers,
+  Gauge,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
@@ -31,7 +38,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Extensão Chrome premium para Lovable.dev: prompt injector, otimizador com IA, shield de créditos, download de código e mais.",
+          "Extensão Chrome premium para Lovable.dev: otimize prompts com IA, proteja créditos, exporte código e envie 3× mais rápido.",
       },
     ],
   }),
@@ -49,10 +56,17 @@ function Index() {
   return (
     <div className="relative">
       <Hero />
+      <ValueProps />
       <LogoStrip />
+      <MockupsSection />
+      <Benefits />
+      <HowItWorks />
       <FeaturesBento />
       <ProductShowcase />
+      <DashboardDemo />
       <Pricing />
+      <Testimonials />
+      <Guarantee />
       <FAQ />
       <CTA />
     </div>
