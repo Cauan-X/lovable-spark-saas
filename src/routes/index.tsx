@@ -3,6 +3,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   Check,
+  Command,
   Zap,
   Shield,
   Download,
