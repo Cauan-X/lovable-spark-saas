@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /checkout
+Disallow: /reset-password
+Disallow: /obrigado
+
+Sitemap: https://lovable-spark-saas.lovable.app/sitemap.xml
