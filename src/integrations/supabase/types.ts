@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      contact_rate_limits: {
+        Row: {
+          created_at: string
+          id: string
+          ip: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip?: string
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           created_at: string
@@ -61,6 +79,59 @@ export type Database = {
           version?: string
         }
         Relationships: []
+      }
+      invoices: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          external_id: string | null
+          id: string
+          paid_at: string
+          plan_slug: string
+          provider: string
+          raw_payload: Json | null
+          status: string
+          subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          external_id?: string | null
+          id?: string
+          paid_at?: string
+          plan_slug: string
+          provider?: string
+          raw_payload?: Json | null
+          status?: string
+          subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          external_id?: string | null
+          id?: string
+          paid_at?: string
+          plan_slug?: string
+          provider?: string
+          raw_payload?: Json | null
+          status?: string
+          subscription_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       licenses: {
         Row: {
@@ -126,25 +197,31 @@ export type Database = {
         Row: {
           created_at: string
           expires_at: string | null
+          external_id: string | null
           id: string
           plan_slug: string
           status: string
+          updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           expires_at?: string | null
+          external_id?: string | null
           id?: string
           plan_slug: string
           status?: string
+          updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           expires_at?: string | null
+          external_id?: string | null
           id?: string
           plan_slug?: string
           status?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -154,6 +231,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_my_account: { Args: never; Returns: undefined }
       generate_license_key: { Args: never; Returns: string }
     }
     Enums: {
