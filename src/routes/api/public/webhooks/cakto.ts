@@ -70,22 +70,44 @@ export const Route = createFileRoute("/api/public/webhooks/cakto")({
         }
 
         const url = new URL(request.url);
-        const provided =
-          request.headers.get("x-cakto-secret") ??
-          request.headers.get("x-webhook-secret") ??
-          url.searchParams.get("secret") ??
-          "";
 
-        if (provided.length !== secret.length) return json({ error: "unauthorized" }, 401);
-        let ok = 0;
-        for (let i = 0; i < secret.length; i++) ok |= provided.charCodeAt(i) ^ secret.charCodeAt(i);
-        if (ok !== 0) return json({ error: "unauthorized" }, 401);
-
+        // Lê o body cru primeiro para poder aceitar o secret vindo no payload
+        // (formato oficial da Cakto: { secret, event, data }).
+        const rawBody = await request.text();
         let payload: Record<string, unknown>;
         try {
-          payload = (await request.json()) as Record<string, unknown>;
+          payload = JSON.parse(rawBody) as Record<string, unknown>;
         } catch {
           return json({ error: "invalid json" }, 400);
+        }
+
+        const provided =
+          (typeof payload.secret === "string" ? payload.secret : "") ||
+          request.headers.get("x-cakto-secret") ||
+          request.headers.get("x-webhook-secret") ||
+          request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ||
+          url.searchParams.get("secret") ||
+          "";
+
+        if (!provided || provided.length !== secret.length) {
+          console.error("[cakto-webhook] unauthorized: secret mismatch (length)");
+          return json({ error: "unauthorized" }, 401);
+        }
+        let ok = 0;
+        for (let i = 0; i < secret.length; i++) ok |= provided.charCodeAt(i) ^ secret.charCodeAt(i);
+        if (ok !== 0) {
+          console.error("[cakto-webhook] unauthorized: secret mismatch");
+          return json({ error: "unauthorized" }, 401);
+        }
+
+        // A Cakto envia o corpo real do evento em `data`. Normalizamos para
+        // que os extractors abaixo continuem funcionando lendo tanto do
+        // topo quanto de `data`.
+        if (payload.data && typeof payload.data === "object") {
+          const evt = (payload.event as string | undefined) ?? "";
+          if (evt && !payload.status) {
+            (payload as Record<string, unknown>).status = evt;
+          }
         }
 
         const status = extractStatus(payload);
