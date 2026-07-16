@@ -185,3 +185,15 @@
 .prose-legal ol { list-style: decimal; }
 .prose-legal a { color: #a78bfa; text-decoration: underline; }
 .prose-legal strong { color: var(--color-foreground); }
+
+/* Hide Lovable badge on published site */
+#lovable-badge,
+a[href*="lovable.dev"][href*="badge"],
+a[href*="lovable.dev/?utm"],
+[data-lovable-badge],
+.lovable-badge {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
