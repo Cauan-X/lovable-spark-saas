@@ -1,5 +1,17 @@
 export const PLANS = [
   {
+    id: "test",
+    name: "Teste R$1",
+    price: "R$ 1",
+    period: "",
+    checkoutUrl: "https://pay.cakto.com.br/torisxp_984190",
+    highlight: false,
+    features: [
+      "Produto de teste",
+      "Fluxo completo de compra",
+    ],
+  },
+  {
     id: "monthly",
     name: "Mensal",
     price: "R$ 29",
