@@ -92,7 +92,19 @@ export const Route = createFileRoute("/api/public/webhooks/cakto")({
           "";
 
         if (!provided || provided.length !== secret.length) {
-          console.error("[cakto-webhook] unauthorized: secret mismatch (length)");
+          console.error(
+            `[cakto-webhook] unauthorized: length mismatch (got=${provided.length} expected=${secret.length} prefix=${provided.slice(0, 4)} source=${
+              typeof payload.secret === "string" && payload.secret
+                ? "body"
+                : request.headers.get("x-cakto-secret")
+                  ? "x-cakto-secret"
+                  : request.headers.get("authorization")
+                    ? "authorization"
+                    : url.searchParams.get("secret")
+                      ? "query"
+                      : "none"
+            })`,
+          );
           return json({ error: "unauthorized" }, 401);
         }
         let ok = 0;
