@@ -14,7 +14,16 @@ import { submitContact } from "@/lib/contact.functions";
 import { prettyError } from "@/lib/error-messages";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({ meta: [{ title: "Contato — Lovable Spark" }, { name: "description", content: "Fale com nosso suporte via Telegram, WhatsApp, email ou formulário." }] }),
+  head: () => ({
+    meta: [
+      { title: "Contato — Lovable Spark" },
+      { name: "description", content: "Fale com nosso suporte via Telegram, WhatsApp, email ou formulário." },
+      { property: "og:title", content: "Contato — Lovable Spark" },
+      { property: "og:description", content: "Fale com nosso suporte via Telegram, WhatsApp, email ou formulário." },
+      { property: "og:url", content: "https://lovable-spark-saas.lovable.app/contact" },
+    ],
+    links: [{ rel: "canonical", href: "https://lovable-spark-saas.lovable.app/contact" }],
+  }),
   component: Contact,
 });
 

@@ -2,7 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LegalLayout } from "@/components/legal-layout";
 
 export const Route = createFileRoute("/cookies")({
-  head: () => ({ meta: [{ title: "Política de Cookies — Lovable Spark" }, { name: "description", content: "Como usamos cookies em nosso site e extensão." }] }),
+  head: () => ({
+    meta: [
+      { title: "Política de Cookies — Lovable Spark" },
+      { name: "description", content: "Como usamos cookies em nosso site e extensão." },
+      { property: "og:url", content: "https://lovable-spark-saas.lovable.app/cookies" },
+    ],
+    links: [{ rel: "canonical", href: "https://lovable-spark-saas.lovable.app/cookies" }],
+  }),
   component: () => (
     <LegalLayout title="Política de Cookies" updated="10 de julho de 2026">
       <h2>1. O que são cookies</h2>
