@@ -12,7 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Home, User as UserIcon, Settings, LogOut, Loader2, Sparkles, Menu, X, LifeBuoy } from "lucide-react";
+import { Home, User as UserIcon, Settings, LogOut, Loader2, Menu, X, LifeBuoy } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { supabase } from "@/integrations/supabase/client";
 import { useUser, initialsOf } from "@/hooks/use-user";
 import { cn } from "@/lib/utils";
