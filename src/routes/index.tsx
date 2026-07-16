@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
+import heroIllustration from "@/assets/hero-illustration.png";
 import {
   Accordion,
   AccordionContent,
@@ -86,6 +87,28 @@ function Hero() {
         <div className="h-[500px] w-[900px] rounded-full bg-[radial-gradient(closest-side,rgba(139,92,246,0.28),transparent_70%)] blur-3xl" />
       </div>
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
+      {/* Original hero illustration — floating, ambient */}
+      <motion.div
+        aria-hidden
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 0.55, scale: 1, y: [0, -12, 0] }}
+        transition={{
+          opacity: { duration: 1.4, ease: "easeOut" },
+          scale: { duration: 1.4, ease: "easeOut" },
+          y: { duration: 9, repeat: Infinity, ease: "easeInOut" },
+        }}
+        className="pointer-events-none absolute left-1/2 top-[60px] -z-10 -translate-x-1/2 w-[1100px] max-w-none"
+      >
+        <div className="absolute inset-0 -z-10 rounded-full bg-[radial-gradient(closest-side,rgba(139,92,246,0.35),transparent_70%)] blur-3xl" />
+        <img
+          src={heroIllustration}
+          alt=""
+          width={1280}
+          height={1280}
+          className="w-full h-auto select-none [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,black_55%,transparent_85%)]"
+        />
+      </motion.div>
 
       <div className="mx-auto max-w-5xl px-6 text-center">
         <motion.a
