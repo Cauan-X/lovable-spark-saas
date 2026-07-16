@@ -4,7 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Loader2, Mail, Check } from "lucide-react";
+import { Loader2, Mail, Check } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -86,11 +87,8 @@ function AuthPage() {
   return (
     <div className="mx-auto max-w-md px-4 py-16">
       <Card className="p-8">
-        <div className="flex items-center gap-2 justify-center mb-6">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15 text-primary">
-            <Sparkles className="h-5 w-5" />
-          </span>
-          <span className="text-lg font-bold">Lovable <span className="text-primary">Spark</span></span>
+        <div className="flex items-center justify-center mb-6">
+          <Logo size={40} wordmarkClassName="text-lg font-bold" />
         </div>
         <h1 className="text-2xl font-bold text-center">Entrar na sua conta</h1>
         <p className="text-sm text-muted-foreground text-center mt-2">
