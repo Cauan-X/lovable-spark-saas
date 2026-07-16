@@ -39,6 +39,7 @@ function Contact() {
       email: String(fd.get("email") ?? ""),
       subject: String(fd.get("subject") ?? ""),
       message: String(fd.get("message") ?? ""),
+      website: String(fd.get("website") ?? ""),
     });
     if (!parsed.success) {
       const fieldErrors: Record<string, string> = {};
@@ -76,6 +77,11 @@ function Contact() {
             </div>
           ) : (
             <form onSubmit={onSubmit} className="space-y-4">
+              {/* Honeypot antibot: escondido de humanos, visível para bots */}
+              <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden" style={{ position: "absolute", left: "-9999px" }}>
+                <label htmlFor="website">Website</label>
+                <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+              </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <Label htmlFor="n">Nome</Label>
