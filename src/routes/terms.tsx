@@ -2,7 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LegalLayout } from "@/components/legal-layout";
 
 export const Route = createFileRoute("/terms")({
-  head: () => ({ meta: [{ title: "Termos de Uso — Lovable Spark" }, { name: "description", content: "Termos e condições de uso do Lovable Spark." }] }),
+  head: () => ({
+    meta: [
+      { title: "Termos de Uso — Lovable Spark" },
+      { name: "description", content: "Termos e condições de uso do Lovable Spark." },
+      { property: "og:url", content: "https://lovable-spark-saas.lovable.app/terms" },
+    ],
+    links: [{ rel: "canonical", href: "https://lovable-spark-saas.lovable.app/terms" }],
+  }),
   component: () => (
     <LegalLayout title="Termos de Uso" updated="10 de julho de 2026">
       <h2>1. Aceitação</h2>

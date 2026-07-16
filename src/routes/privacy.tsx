@@ -2,7 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LegalLayout } from "@/components/legal-layout";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({ meta: [{ title: "Política de Privacidade — Lovable Spark" }, { name: "description", content: "Como coletamos, usamos e protegemos seus dados." }] }),
+  head: () => ({
+    meta: [
+      { title: "Política de Privacidade — Lovable Spark" },
+      { name: "description", content: "Como coletamos, usamos e protegemos seus dados." },
+      { property: "og:url", content: "https://lovable-spark-saas.lovable.app/privacy" },
+    ],
+    links: [{ rel: "canonical", href: "https://lovable-spark-saas.lovable.app/privacy" }],
+  }),
   component: () => (
     <LegalLayout title="Política de Privacidade" updated="10 de julho de 2026">
       <h2>1. Introdução</h2>

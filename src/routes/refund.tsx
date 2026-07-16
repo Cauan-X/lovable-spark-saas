@@ -2,7 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LegalLayout } from "@/components/legal-layout";
 
 export const Route = createFileRoute("/refund")({
-  head: () => ({ meta: [{ title: "Política de Reembolso — Lovable Spark" }, { name: "description", content: "Regras e prazos para reembolso." }] }),
+  head: () => ({
+    meta: [
+      { title: "Política de Reembolso — Lovable Spark" },
+      { name: "description", content: "Regras e prazos para reembolso." },
+      { property: "og:url", content: "https://lovable-spark-saas.lovable.app/refund" },
+    ],
+    links: [{ rel: "canonical", href: "https://lovable-spark-saas.lovable.app/refund" }],
+  }),
   component: () => (
     <LegalLayout title="Política de Reembolso" updated="10 de julho de 2026">
       <h2>1. Garantia de 7 dias</h2>

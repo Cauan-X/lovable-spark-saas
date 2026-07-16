@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Home, User as UserIcon, Settings, LogOut, Loader2, Menu, X, LifeBuoy } from "lucide-react";
+import { Home, User as UserIcon, Settings, LogOut, Loader2, Menu, X, LifeBuoy, Receipt } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { supabase } from "@/integrations/supabase/client";
 import { useUser, initialsOf } from "@/hooks/use-user";
@@ -27,6 +27,7 @@ export const Route = createFileRoute("/dashboard")({
 const NAV = [
   { to: "/dashboard", label: "Visão geral", icon: Home, exact: true },
   { to: "/dashboard/profile", label: "Meu perfil", icon: UserIcon },
+  { to: "/dashboard/billing", label: "Faturas", icon: Receipt },
   { to: "/dashboard/settings", label: "Configurações", icon: Settings },
 ];
 

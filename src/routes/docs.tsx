@@ -6,7 +6,16 @@ import { Badge } from "@/components/ui/badge";
 import { Search } from "lucide-react";
 
 export const Route = createFileRoute("/docs")({
-  head: () => ({ meta: [{ title: "Documentação — Lovable Spark" }, { name: "description", content: "Guias completos para todas as ferramentas do Lovable Spark." }] }),
+  head: () => ({
+    meta: [
+      { title: "Documentação — Lovable Spark" },
+      { name: "description", content: "Guias completos para todas as ferramentas do Lovable Spark." },
+      { property: "og:title", content: "Documentação — Lovable Spark" },
+      { property: "og:description", content: "Guias completos para todas as ferramentas do Lovable Spark." },
+      { property: "og:url", content: "https://lovable-spark-saas.lovable.app/docs" },
+    ],
+    links: [{ rel: "canonical", href: "https://lovable-spark-saas.lovable.app/docs" }],
+  }),
   component: Docs,
 });
 

@@ -6,7 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/changelog")({
-  head: () => ({ meta: [{ title: "Changelog — Lovable Spark" }, { name: "description", content: "Histórico completo de versões e melhorias do Lovable Spark." }] }),
+  head: () => ({
+    meta: [
+      { title: "Changelog — Lovable Spark" },
+      { name: "description", content: "Histórico completo de versões e melhorias do Lovable Spark." },
+      { property: "og:title", content: "Changelog — Lovable Spark" },
+      { property: "og:description", content: "Histórico completo de versões e melhorias do Lovable Spark." },
+      { property: "og:url", content: "https://lovable-spark-saas.lovable.app/changelog" },
+    ],
+    links: [{ rel: "canonical", href: "https://lovable-spark-saas.lovable.app/changelog" }],
+  }),
   component: Changelog,
 });
 

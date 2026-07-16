@@ -26,6 +26,8 @@ export const contactSchema = z.object({
   email: emailSchema,
   subject: z.string().trim().min(1, "Assunto obrigatório").max(150),
   message: z.string().trim().min(10, "Mensagem muito curta").max(2000, "Máximo de 2000 caracteres"),
+  // Honeypot: bots preenchem, humanos não veem
+  website: z.string().max(0).optional().or(z.literal("")),
 });
 
 export type ContactInput = z.infer<typeof contactSchema>;
