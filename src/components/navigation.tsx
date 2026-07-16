@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { NAV_LINKS } from "@/lib/site-data";
+import { Logo } from "@/components/logo";
 import { useUser, initialsOf } from "@/hooks/use-user";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -74,15 +75,7 @@ export function Navigation() {
               </Avatar>
             </div>
           )}
-          <Link to="/" className="flex items-center gap-2.5 text-[15px] font-semibold tracking-tight">
-          <span className="relative flex h-6 w-6 items-center justify-center rounded-md bg-gradient-brand">
-            <span className="absolute inset-0 rounded-md bg-gradient-brand opacity-60 blur-md" />
-            <svg viewBox="0 0 24 24" className="relative h-3.5 w-3.5 text-white" fill="currentColor" aria-hidden>
-              <path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" />
-            </svg>
-          </span>
-          <span>Spark</span>
-          </Link>
+          <Logo size={26} />
         </div>
 
         <nav className="hidden md:flex items-center gap-1">

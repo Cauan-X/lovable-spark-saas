@@ -1,18 +1,12 @@
 import { Link } from "@tanstack/react-router";
+import { Logo } from "@/components/logo";
 
 export function Footer() {
   return (
     <footer className="border-t border-white/[0.06] bg-background">
       <div className="mx-auto max-w-6xl px-6 py-16 grid gap-10 md:grid-cols-5">
         <div className="md:col-span-2">
-          <div className="flex items-center gap-2.5 text-[15px] font-semibold tracking-tight">
-            <span className="relative flex h-6 w-6 items-center justify-center rounded-md bg-gradient-brand">
-              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-white" fill="currentColor" aria-hidden>
-                <path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" />
-              </svg>
-            </span>
-            Spark
-          </div>
+          <Logo size={28} />
           <p className="mt-4 text-sm text-muted-foreground max-w-xs leading-relaxed">
             A camada de produtividade para quem constrói no Lovable.dev.
           </p>

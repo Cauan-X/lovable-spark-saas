@@ -12,7 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Home, User as UserIcon, Settings, LogOut, Loader2, Sparkles, Menu, X, LifeBuoy } from "lucide-react";
+import { Home, User as UserIcon, Settings, LogOut, Loader2, Menu, X, LifeBuoy } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { supabase } from "@/integrations/supabase/client";
 import { useUser, initialsOf } from "@/hooks/use-user";
 import { cn } from "@/lib/utils";
@@ -71,12 +72,7 @@ function DashboardLayout() {
 
   const SidebarInner = (
     <div className="flex h-full flex-col gap-6 p-5">
-      <Link to="/" className="flex items-center gap-2.5 text-[15px] font-semibold tracking-tight">
-        <span className="relative flex h-7 w-7 items-center justify-center rounded-md bg-gradient-brand">
-          <Sparkles className="relative h-3.5 w-3.5 text-white" />
-        </span>
-        <span className="font-display">Spark</span>
-      </Link>
+      <Logo size={28} wordmarkClassName="text-[15px] font-semibold tracking-tight font-display" />
 
       <nav className="flex flex-col gap-1">
         {NAV.map((item) => (
