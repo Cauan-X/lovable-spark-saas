@@ -23,6 +23,7 @@ function resolvePlan(payload: Record<string, unknown>): { slug: string; days: nu
   if (ref.includes("annual") || ref.includes("anual")) return { slug: "annual", days: 365 };
   if (ref.includes("quarter") || ref.includes("trimestral")) return { slug: "quarterly", days: 90 };
   if (ref.includes("month") || ref.includes("mensal")) return { slug: "monthly", days: 30 };
+  if (ref.includes("test") || ref.includes("teste")) return { slug: "test", days: 7 };
 
   const amountCents = Number(
     (payload.amount as number | undefined) ??
@@ -32,6 +33,7 @@ function resolvePlan(payload: Record<string, unknown>): { slug: string; days: nu
   if (amountCents >= 15000) return { slug: "annual", days: 365 };
   if (amountCents >= 5000) return { slug: "quarterly", days: 90 };
   if (amountCents >= 2000) return { slug: "monthly", days: 30 };
+  if (amountCents > 0 && amountCents < 500) return { slug: "test", days: 7 };
   return null;
 }
 
