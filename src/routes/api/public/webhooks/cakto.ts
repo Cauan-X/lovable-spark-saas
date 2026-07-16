@@ -184,7 +184,7 @@ export const Route = createFileRoute("/api/public/webhooks/cakto")({
           amount_cents: amountCents,
           currency: "BRL",
           status: "paid",
-          raw_payload: payload,
+          raw_payload: payload as never,
         });
 
         // Trigger `create_license_for_subscription` roda automaticamente no insert de subscription ativa.
