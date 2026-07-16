@@ -42,7 +42,9 @@ export const Route = createFileRoute("/")({
         content:
           "Extensão Chrome premium para Lovable.dev: otimize prompts com IA, proteja créditos, exporte código e envie 3× mais rápido.",
       },
+      { property: "og:url", content: "https://lovable-spark-saas.lovable.app/" },
     ],
+    links: [{ rel: "canonical", href: "https://lovable-spark-saas.lovable.app/" }],
   }),
   component: Index,
 });
