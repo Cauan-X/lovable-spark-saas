@@ -30,7 +30,7 @@ const PLAN_LABEL: Record<string, string> = {
 };
 
 type Sub = { plan_slug: string; status: string; expires_at: string | null };
-type Lic = { key: string; status: string; expires_at: string | null };
+type Lic = { key_prefix: string; status: string; expires_at: string | null };
 
 function DashboardHome() {
   const { user, profile } = useUser();
@@ -44,7 +44,7 @@ function DashboardHome() {
     (async () => {
       const [{ data: subs }, { data: lics }] = await Promise.all([
         supabase.from("subscriptions").select("plan_slug,status,expires_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1),
-        supabase.from("licenses").select("key,status,expires_at").eq("user_id", user.id).eq("status", "active").limit(1),
+        supabase.from("licenses").select("key_prefix,status,expires_at").eq("user_id", user.id).in("status", ["active", "past_due"]).limit(1),
       ]);
       if (!alive) return;
       setSub((subs?.[0] as Sub | undefined) ?? null);
@@ -56,8 +56,8 @@ function DashboardHome() {
 
   const copy = async () => {
     if (!license) return;
-    await navigator.clipboard.writeText(license.key);
-    toast.success("Chave copiada");
+    await navigator.clipboard.writeText(license.key_prefix);
+    toast.success("Prefixo copiado");
   };
 
   const name = profile?.full_name || user?.email?.split("@")[0] || "Usuário";
@@ -113,7 +113,7 @@ function DashboardHome() {
                 <div className="mt-3 flex items-center text-sm text-muted-foreground"><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Carregando…</div>
               ) : license ? (
                 <div className="mt-3 flex items-center gap-2">
-                  <code className="rounded bg-muted px-2 py-1 text-sm">{license.key}</code>
+                  <code className="rounded bg-muted px-2 py-1 text-sm">{license.key_prefix}••••-••••-••••-••••</code>
                   <Button size="sm" variant="ghost" onClick={copy}><Copy className="h-3.5 w-3.5" /></Button>
                 </div>
               ) : (
