@@ -14,6 +14,19 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    define: {
+      "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(
+        process.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL ?? "https://pyymzpbdkttbjyodrcgz.supabase.co",
+      ),
+      "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(
+        process.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
+          process.env.SUPABASE_PUBLISHABLE_KEY ??
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eW16cGJka3R0Ymp5b2RyY2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5ODc5MzMsImV4cCI6MjA5OTU2MzkzM30.CC4wQcwWknvSeiGTUFMqojp9A793ECcAcG3r9t9FGCM",
+      ),
+      "import.meta.env.VITE_SUPABASE_PROJECT_ID": JSON.stringify(
+        process.env.VITE_SUPABASE_PROJECT_ID ?? "pyymzpbdkttbjyodrcgz",
+      ),
+    },
     plugins: [mcpPlugin()],
   },
 });
