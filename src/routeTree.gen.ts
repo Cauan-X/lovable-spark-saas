@@ -29,6 +29,7 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
 import { Route as DashboardBillingRouteImport } from './routes/dashboard.billing'
+import { Route as DashboardDownloadRouteImport } from './routes/dashboard.download'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -135,6 +136,11 @@ const DashboardBillingRoute = DashboardBillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardDownloadRoute = DashboardDownloadRouteImport.update({
+  id: '/download',
+  path: '/download',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
   Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
     id: '/.well-known/oauth-protected-resource',
@@ -184,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/dashboard/billing': typeof DashboardBillingRoute
+  '/dashboard/download': typeof DashboardDownloadRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -210,6 +217,7 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/dashboard/billing': typeof DashboardBillingRoute
+  '/dashboard/download': typeof DashboardDownloadRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -238,6 +246,7 @@ export interface FileRoutesById {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/dashboard/billing': typeof DashboardBillingRoute
+  '/dashboard/download': typeof DashboardDownloadRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -267,6 +276,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/dashboard/billing'
+    | '/dashboard/download'
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/dashboard/'
@@ -293,6 +303,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/dashboard/billing'
+    | '/dashboard/download'
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/dashboard'
@@ -320,6 +331,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/dashboard/billing'
+    | '/dashboard/download'
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/dashboard/'
@@ -494,6 +506,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardBillingRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/download': {
+      id: '/dashboard/download'
+      path: '/download'
+      fullPath: '/dashboard/download'
+      preLoaderRoute: typeof DashboardDownloadRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/.well-known/oauth-protected-resource': {
       id: '/.well-known/oauth-protected-resource'
       path: '/.well-known/oauth-protected-resource'
@@ -534,6 +553,7 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardBillingRoute: typeof DashboardBillingRoute
+  DashboardDownloadRoute: typeof DashboardDownloadRoute
   DashboardProfileRoute: typeof DashboardProfileRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -541,6 +561,7 @@ interface DashboardRouteChildren {
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardBillingRoute: DashboardBillingRoute,
+  DashboardDownloadRoute: DashboardDownloadRoute,
   DashboardProfileRoute: DashboardProfileRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,

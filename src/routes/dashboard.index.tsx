@@ -123,9 +123,9 @@ function DashboardHome() {
                 </p>
               )}
             </div>
-            <Button disabled={!license} className="bg-gradient-brand bg-gradient-brand-hover text-white">
-              <Download className="mr-2 h-4 w-4" /> Baixar .crx
-            </Button>
+            <Link to="/dashboard/download" disabled={!license} className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-brand bg-gradient-brand-hover text-white px-5 py-2.5 text-sm font-medium transition-all hover:shadow-lg disabled:opacity-50 disabled:pointer-events-none">
+              <Download className="h-4 w-4" /> Baixar .crx
+            </Link>
           </div>
         </Card>
 

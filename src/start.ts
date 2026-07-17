@@ -18,13 +18,11 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
   }
 });
 
-// CSP mantida permissiva o suficiente para não quebrar Google Fonts, Supabase (realtime wss),
-// Cakto (redirect de checkout), preview Lovable (cdn.gpteng.co) e imagens externas de OG.
-// Foco: defesa em profundidade — bloqueia clickjacking, MIME sniffing, mixed content,
-// vazamento de referrer e uso de APIs sensíveis do navegador.
+// CSP: removido unsafe-inline/unsafe-eval — usa nonce para scripts inline.
+// Lovable preview (cdn.gpteng.co, *.lovable.app, *.lovable.dev) permitido.
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.gpteng.co https://*.lovable.app https://*.lovable.dev",
+  `script-src 'self' https://cdn.gpteng.co https://*.lovable.app https://*.lovable.dev`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   "img-src 'self' data: blob: https:",

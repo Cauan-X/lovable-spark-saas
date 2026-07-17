@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Home, User as UserIcon, Settings, LogOut, Loader2, Menu, X, LifeBuoy, Receipt } from "lucide-react";
+import { Home, User as UserIcon, Settings, LogOut, Loader2, Menu, X, LifeBuoy, Receipt, Download } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { supabase } from "@/integrations/supabase/client";
 import { useUser, initialsOf } from "@/hooks/use-user";
@@ -21,11 +21,18 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/dashboard")({
   ssr: false,
   head: () => ({ meta: [{ title: "Dashboard — Lovable Spark" }, { name: "robots", content: "noindex" }] }),
+  beforeLoad: async ({ location }) => {
+    const { data } = await import("@/integrations/supabase/client").then(m => m.supabase.auth.getSession());
+    if (!data.session) {
+      throw new Error("Not authenticated");
+    }
+  },
   component: DashboardLayout,
 });
 
 const NAV = [
   { to: "/dashboard", label: "Visão geral", icon: Home, exact: true },
+  { to: "/dashboard/download", label: "Download", icon: Download },
   { to: "/dashboard/profile", label: "Meu perfil", icon: UserIcon },
   { to: "/dashboard/billing", label: "Faturas", icon: Receipt },
   { to: "/dashboard/settings", label: "Configurações", icon: Settings },
@@ -41,7 +48,7 @@ function DashboardLayout() {
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   useEffect(() => {
-    if (!loading && !user) navigate({ to: "/auth" });
+    if (!loading && !user) navigate({ to: "/auth", replace: true });
   }, [loading, user, navigate]);
 
   const signOut = async () => {

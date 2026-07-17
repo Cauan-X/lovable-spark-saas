@@ -40,15 +40,26 @@ function AuthPage() {
   const [sent, setSent] = useState(false);
   const [resetting, setResetting] = useState(false);
 
+  const [checkingSession, setCheckingSession] = useState(true);
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) window.location.href = target;
+      if (data.session) { navigate({ to: target, replace: true }); return; }
+      setCheckingSession(false);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (session) window.location.href = target;
+      if (session) navigate({ to: target, replace: true });
     });
     return () => sub.subscription.unsubscribe();
   }, [navigate, target]);
+
+  if (checkingSession) {
+    return (
+      <div className="mx-auto flex min-h-[70vh] max-w-md items-center justify-center px-4">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   const onMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();

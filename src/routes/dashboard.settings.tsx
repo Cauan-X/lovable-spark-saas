@@ -231,7 +231,7 @@ function SettingsPage() {
                 </p>
               </div>
               <div className="flex gap-2">
-                <Link to="/contact"><Button variant="outline">Gerenciar assinatura</Button></Link>
+                <Link to="/dashboard/billing"><Button variant="outline">Gerenciar assinatura</Button></Link>
                 <Link to="/" hash="pricing">
                   <Button className="bg-gradient-brand bg-gradient-brand-hover text-white">
                     Ver planos <ArrowUpRight className="ml-1 h-4 w-4" />
