@@ -28,6 +28,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
+import { Route as DashboardDownloadsRouteImport } from './routes/dashboard.downloads'
 import { Route as DashboardDownloadRouteImport } from './routes/dashboard.download'
 import { Route as DashboardBillingRouteImport } from './routes/dashboard.billing'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -131,6 +132,11 @@ const DashboardProfileRoute = DashboardProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardDownloadsRoute = DashboardDownloadsRouteImport.update({
+  id: '/downloads',
+  path: '/downloads',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardDownloadRoute = DashboardDownloadRouteImport.update({
   id: '/download',
   path: '/download',
@@ -191,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/dashboard/billing': typeof DashboardBillingRoute
   '/dashboard/download': typeof DashboardDownloadRoute
+  '/dashboard/downloads': typeof DashboardDownloadsRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -218,6 +225,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/dashboard/billing': typeof DashboardBillingRoute
   '/dashboard/download': typeof DashboardDownloadRoute
+  '/dashboard/downloads': typeof DashboardDownloadsRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -247,6 +255,7 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/dashboard/billing': typeof DashboardBillingRoute
   '/dashboard/download': typeof DashboardDownloadRoute
+  '/dashboard/downloads': typeof DashboardDownloadsRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -277,6 +286,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/dashboard/billing'
     | '/dashboard/download'
+    | '/dashboard/downloads'
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/dashboard/'
@@ -304,6 +314,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/dashboard/billing'
     | '/dashboard/download'
+    | '/dashboard/downloads'
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/dashboard'
@@ -332,6 +343,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/dashboard/billing'
     | '/dashboard/download'
+    | '/dashboard/downloads'
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/dashboard/'
@@ -499,6 +511,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardProfileRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/downloads': {
+      id: '/dashboard/downloads'
+      path: '/downloads'
+      fullPath: '/dashboard/downloads'
+      preLoaderRoute: typeof DashboardDownloadsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/download': {
       id: '/dashboard/download'
       path: '/download'
@@ -554,6 +573,7 @@ declare module '@tanstack/react-router' {
 interface DashboardRouteChildren {
   DashboardBillingRoute: typeof DashboardBillingRoute
   DashboardDownloadRoute: typeof DashboardDownloadRoute
+  DashboardDownloadsRoute: typeof DashboardDownloadsRoute
   DashboardProfileRoute: typeof DashboardProfileRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -562,6 +582,7 @@ interface DashboardRouteChildren {
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardBillingRoute: DashboardBillingRoute,
   DashboardDownloadRoute: DashboardDownloadRoute,
+  DashboardDownloadsRoute: DashboardDownloadsRoute,
   DashboardProfileRoute: DashboardProfileRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,

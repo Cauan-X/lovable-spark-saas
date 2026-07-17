@@ -33,6 +33,7 @@ export const Route = createFileRoute("/dashboard")({
 const NAV = [
   { to: "/dashboard", label: "Visão geral", icon: Home, exact: true },
   { to: "/dashboard/download", label: "Download", icon: Download },
+  { to: "/dashboard/downloads", label: "Downloads", icon: Download },
   { to: "/dashboard/profile", label: "Meu perfil", icon: UserIcon },
   { to: "/dashboard/billing", label: "Faturas", icon: Receipt },
   { to: "/dashboard/settings", label: "Configurações", icon: Settings },
