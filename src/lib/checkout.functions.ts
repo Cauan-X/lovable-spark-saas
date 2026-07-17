@@ -13,7 +13,7 @@ export const getLicenseByTransaction = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Busca direto no cache (evita janela de 60min frágil)
-    const { data: cache } = await supabaseAdmin
+    const { data: cache } = await (supabaseAdmin as any)
       .from("license_keys_cache")
       .select("license_key, plan_slug, expires_at")
       .eq("transaction_id", data.txid)
