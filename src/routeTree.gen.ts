@@ -28,8 +28,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
-import { Route as DashboardBillingRouteImport } from './routes/dashboard.billing'
 import { Route as DashboardDownloadRouteImport } from './routes/dashboard.download'
+import { Route as DashboardBillingRouteImport } from './routes/dashboard.billing'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -131,14 +131,14 @@ const DashboardProfileRoute = DashboardProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardBillingRoute = DashboardBillingRouteImport.update({
-  id: '/billing',
-  path: '/billing',
-  getParentRoute: () => DashboardRoute,
-} as any)
 const DashboardDownloadRoute = DashboardDownloadRouteImport.update({
   id: '/download',
   path: '/download',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardBillingRoute = DashboardBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
   getParentRoute: () => DashboardRoute,
 } as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
@@ -499,18 +499,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardProfileRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/billing': {
-      id: '/dashboard/billing'
-      path: '/billing'
-      fullPath: '/dashboard/billing'
-      preLoaderRoute: typeof DashboardBillingRouteImport
-      parentRoute: typeof DashboardRoute
-    }
     '/dashboard/download': {
       id: '/dashboard/download'
       path: '/download'
       fullPath: '/dashboard/download'
       preLoaderRoute: typeof DashboardDownloadRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/billing': {
+      id: '/dashboard/billing'
+      path: '/billing'
+      fullPath: '/dashboard/billing'
+      preLoaderRoute: typeof DashboardBillingRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/.well-known/oauth-protected-resource': {
