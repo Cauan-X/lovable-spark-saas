@@ -163,6 +163,33 @@ export type Database = {
           },
         ]
       }
+      license_keys_cache: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          license_key: string
+          plan_slug: string
+          transaction_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          license_key: string
+          plan_slug: string
+          transaction_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          license_key?: string
+          plan_slug?: string
+          transaction_id?: string
+        }
+        Relationships: []
+      }
       licenses: {
         Row: {
           activated_at: string
