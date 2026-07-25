@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Download, Key, CheckCircle2, ExternalLink, MonitorSmartphone, ShieldCheck, Puzzle, ChevronRight } from "lucide-react";
+import { Copy, Download, Key, CheckCircle2, ExternalLink, MonitorSmartphone, ShieldCheck, Puzzle, ChevronRight, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useUser } from "@/hooks/use-user";
@@ -25,8 +25,12 @@ type License = {
   expires_at: string | null;
 };
 
-const EXTENSION_VERSION = "3.1.0";
-const CRX_URL = `https://github.com/Cauan-X/lovable-spark-saas/releases/download/v${EXTENSION_VERSION}/lovable-spark-v${EXTENSION_VERSION}.crx`;
+type ExtensionVersion = {
+  version: string;
+  crx_path: string;
+  changelog: string | null;
+  published_at: string;
+};
 
 const STEPS = [
   {
@@ -64,22 +68,32 @@ const STEPS = [
 function DownloadPage() {
   const { user } = useUser();
   const [license, setLicense] = useState<License | null>(null);
+  const [latestVersion, setLatestVersion] = useState<ExtensionVersion | null>(null);
+  const [versions, setVersions] = useState<ExtensionVersion[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
     let alive = true;
-    supabase
-      .from("licenses")
-      .select("key_prefix, status, expires_at")
-      .eq("user_id", user.id)
-      .in("status", ["active", "past_due"])
-      .limit(1)
-      .then(({ data }) => {
-        if (!alive) return;
-        setLicense((data?.[0] as License | undefined) ?? null);
-        setLoading(false);
-      });
+    (async () => {
+      const [{ data: lics }, { data: ver }] = await Promise.all([
+        supabase
+          .from("licenses")
+          .select("key_prefix, status, expires_at")
+          .eq("user_id", user.id)
+          .in("status", ["active", "past_due"])
+          .limit(1),
+        supabase
+          .from("extension_versions")
+          .select("version, crx_path, changelog, published_at")
+          .order("published_at", { ascending: false }),
+      ]);
+      if (!alive) return;
+      setLicense((lics?.[0] as License | undefined) ?? null);
+      setVersions((ver as ExtensionVersion[]) ?? []);
+      setLatestVersion((ver?.[0] as ExtensionVersion | undefined) ?? null);
+      setLoading(false);
+    })();
     return () => { alive = false; };
   }, [user]);
 
@@ -88,6 +102,13 @@ function DownloadPage() {
     await navigator.clipboard.writeText(fullKey);
     toast.success("Prefixo copiado!");
   };
+
+  const version = latestVersion?.version ?? "3.1.0";
+  const crxUrl = latestVersion?.crx_path
+    ? latestVersion.crx_path.startsWith("http")
+      ? latestVersion.crx_path
+      : `https://github.com/Cauan-X/lovable-spark-saas/releases/download/v${version}/lovable-spark-v${version}.crx`
+    : `https://github.com/Cauan-X/lovable-spark-saas/releases/download/v${version}/lovable-spark-v${version}.crx`;
 
   if (!user) return null;
 
@@ -103,7 +124,7 @@ function DownloadPage() {
       <div className="grid gap-6 lg:grid-cols-5">
         <Card className="glass-card lg:col-span-3 p-6">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground mb-4">
-            <Download className="h-3.5 w-3.5" /> Extensão v{EXTENSION_VERSION}
+            <Download className="h-3.5 w-3.5" /> Extensão v{version}
           </div>
 
           <div className="flex items-center gap-2 mb-4">
@@ -118,12 +139,12 @@ function DownloadPage() {
           </div>
 
           <a
-            href={CRX_URL}
+            href={crxUrl}
             download
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-brand bg-gradient-brand-hover text-white px-6 py-3 text-sm font-medium transition-all hover:shadow-lg w-full sm:w-auto"
           >
             <Download className="h-4 w-4" />
-            Baixar .crx (v{EXTENSION_VERSION})
+            Baixar .crx (v{version})
           </a>
 
           {loading ? null : license ? (
@@ -155,7 +176,7 @@ function DownloadPage() {
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li className="flex items-start gap-2">
               <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-              Google Chrome v{EXTENSION_VERSION.split(".")[0]} ou superior
+              Google Chrome v{version.split(".")[0]} ou superior
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
@@ -172,6 +193,23 @@ function DownloadPage() {
           </ul>
         </Card>
       </div>
+
+      {/* Changelog */}
+      {latestVersion && (
+        <Card className="glass-card p-6">
+          <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground mb-3">
+            <Sparkles className="h-3.5 w-3.5" /> O que há de novo — v{latestVersion.version}
+          </div>
+          <div className="whitespace-pre-line text-sm text-muted-foreground">
+            {latestVersion.changelog || "Nenhuma informação de changelog disponível."}
+          </div>
+          {versions.length > 1 && (
+            <Link to="/changelog" className="mt-4 inline-flex items-center gap-1 text-xs text-primary hover:underline">
+              Ver versões anteriores <ChevronRight className="h-3 w-3" />
+            </Link>
+          )}
+        </Card>
+      )}
 
       {/* Step-by-step guide */}
       <div className="space-y-3">

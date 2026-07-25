@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Home, User as UserIcon, Settings, LogOut, Loader2, Menu, X, LifeBuoy, Receipt, Download } from "lucide-react";
+import { Home, User as UserIcon, Settings, LogOut, Loader2, Menu, X, LifeBuoy, Receipt, Download, Shield } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { supabase } from "@/integrations/supabase/client";
 import { useUser, initialsOf } from "@/hooks/use-user";
@@ -33,7 +33,6 @@ export const Route = createFileRoute("/dashboard")({
 const NAV = [
   { to: "/dashboard", label: "Visão geral", icon: Home, exact: true },
   { to: "/dashboard/download", label: "Download", icon: Download },
-  { to: "/dashboard/downloads", label: "Downloads", icon: Download },
   { to: "/dashboard/profile", label: "Meu perfil", icon: UserIcon },
   { to: "/dashboard/billing", label: "Faturas", icon: Receipt },
   { to: "/dashboard/settings", label: "Configurações", icon: Settings },
@@ -44,7 +43,13 @@ function DashboardLayout() {
   const queryClient = useQueryClient();
   const { user, profile, avatarUrl, loading } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.rpc("is_admin", { user_id: user.id }).then(({ data }) => setIsAdmin(!!data));
+  }, [user]);
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
@@ -102,6 +107,14 @@ function DashboardLayout() {
       </nav>
 
       <div className="mt-auto">
+        {isAdmin && (
+          <Link
+            to="/admin"
+            className="flex items-center gap-3 rounded-md px-3 py-2 text-[13px] text-amber-400/80 hover:text-amber-400 hover:bg-white/[0.03]"
+          >
+            <Shield className="h-4 w-4" /> Admin
+          </Link>
+        )}
         <Link
           to="/contact"
           className="flex items-center gap-3 rounded-md px-3 py-2 text-[13px] text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"

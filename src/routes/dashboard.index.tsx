@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
+  AlertTriangle,
   CheckCircle2,
   Copy,
   Download,
@@ -14,6 +15,7 @@ import {
   CreditCard,
   ArrowUpRight,
   CalendarClock,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,24 +33,30 @@ const PLAN_LABEL: Record<string, string> = {
 
 type Sub = { plan_slug: string; status: string; expires_at: string | null };
 type Lic = { key_prefix: string; status: string; expires_at: string | null };
+type ExtVer = { version: string };
 
 function DashboardHome() {
   const { user, profile } = useUser();
   const [sub, setSub] = useState<Sub | null>(null);
   const [license, setLicense] = useState<Lic | null>(null);
+  const [latestVersion, setLatestVersion] = useState<ExtVer | null>(null);
   const [loading, setLoading] = useState(true);
+  const [dismissedExpiry, setDismissedExpiry] = useState(false);
+  const [dismissedVersion, setDismissedVersion] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     let alive = true;
     (async () => {
-      const [{ data: subs }, { data: lics }] = await Promise.all([
+      const [{ data: subs }, { data: lics }, { data: vers }] = await Promise.all([
         supabase.from("subscriptions").select("plan_slug,status,expires_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1),
         supabase.from("licenses").select("key_prefix,status,expires_at").eq("user_id", user.id).in("status", ["active", "past_due"]).limit(1),
+        supabase.from("extension_versions").select("version").eq("is_latest", true).limit(1),
       ]);
       if (!alive) return;
       setSub((subs?.[0] as Sub | undefined) ?? null);
       setLicense((lics?.[0] as Lic | undefined) ?? null);
+      setLatestVersion((vers?.[0] as ExtVer | undefined) ?? null);
       setLoading(false);
     })();
     return () => { alive = false; };
@@ -76,6 +84,40 @@ function DashboardHome() {
       <div>
         <h1 className="text-3xl font-display font-semibold tracking-tight">Olá, {name} 👋</h1>
         <p className="mt-1 text-sm text-muted-foreground">Bem-vindo de volta ao seu painel Spark.</p>
+      </div>
+
+      {/* Notificações */}
+      <div className="space-y-2">
+        {license?.expires_at && !dismissedExpiry && (() => {
+          const days = Math.ceil((new Date(license.expires_at!).getTime() - Date.now()) / 86400000);
+          if (days < 0) {
+            return (
+              <div className="flex items-center gap-3 rounded-lg border border-red-500/30 bg-red-500/[0.05] px-4 py-3 text-sm">
+                <AlertTriangle className="h-5 w-5 text-red-500 shrink-0" />
+                <span className="flex-1 text-muted-foreground">Sua licença expirou. <Link to="/" hash="pricing" className="text-primary hover:underline">Adquira um novo plano.</Link></span>
+                <button onClick={() => setDismissedExpiry(true)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+              </div>
+            );
+          }
+          if (days <= 7) {
+            return (
+              <div className="flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/[0.05] px-4 py-3 text-sm">
+                <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
+                <span className="flex-1 text-muted-foreground">Sua licença expira em <strong>{days} {days === 1 ? "dia" : "dias"}</strong>. <Link to="/dashboard/billing" className="text-primary hover:underline">Renove agora.</Link></span>
+                <button onClick={() => setDismissedExpiry(true)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+              </div>
+            );
+          }
+          return null;
+        })()}
+
+        {latestVersion && !dismissedVersion && (
+          <div className="flex items-center gap-3 rounded-lg border border-purple-500/30 bg-purple-500/[0.05] px-4 py-3 text-sm">
+            <Sparkles className="h-5 w-5 text-purple-500 shrink-0" />
+            <span className="flex-1 text-muted-foreground">Nova versão <strong>v{latestVersion.version}</strong> disponível. <Link to="/dashboard/download" className="text-primary hover:underline">Baixar agora.</Link></span>
+            <button onClick={() => setDismissedVersion(true)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+          </div>
+        )}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

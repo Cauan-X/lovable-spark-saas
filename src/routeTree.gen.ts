@@ -18,6 +18,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ObrigadoRouteImport } from './routes/obrigado'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as DocsRouteImport } from './routes/docs'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -25,10 +26,10 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
-import { Route as DashboardDownloadsRouteImport } from './routes/dashboard.downloads'
 import { Route as DashboardDownloadRouteImport } from './routes/dashboard.download'
 import { Route as DashboardBillingRouteImport } from './routes/dashboard.billing'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -37,6 +38,16 @@ import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiPublicWebhooksCaktoRouteImport } from './routes/api/public/webhooks/cakto'
 
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -132,11 +143,6 @@ const DashboardProfileRoute = DashboardProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardDownloadsRoute = DashboardDownloadsRouteImport.update({
-  id: '/downloads',
-  path: '/downloads',
-  getParentRoute: () => DashboardRoute,
-} as any)
 const DashboardDownloadRoute = DashboardDownloadRouteImport.update({
   id: '/download',
   path: '/download',
@@ -177,6 +183,8 @@ const ApiPublicWebhooksCaktoRoute = ApiPublicWebhooksCaktoRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/admin': typeof AdminRouteWithChildren
+  '/admin/': typeof AdminIndexRoute
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/changelog': typeof ChangelogRoute
@@ -197,7 +205,6 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/dashboard/billing': typeof DashboardBillingRoute
   '/dashboard/download': typeof DashboardDownloadRoute
-  '/dashboard/downloads': typeof DashboardDownloadsRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -206,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/api/public/webhooks/cakto': typeof ApiPublicWebhooksCaktoRoute
 }
 export interface FileRoutesByTo {
+  '/admin': typeof AdminIndexRoute
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/changelog': typeof ChangelogRoute
@@ -225,7 +233,6 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/dashboard/billing': typeof DashboardBillingRoute
   '/dashboard/download': typeof DashboardDownloadRoute
-  '/dashboard/downloads': typeof DashboardDownloadsRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -235,6 +242,8 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/admin': typeof AdminRouteWithChildren
+  '/admin/': typeof AdminIndexRoute
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/changelog': typeof ChangelogRoute
@@ -255,7 +264,6 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/dashboard/billing': typeof DashboardBillingRoute
   '/dashboard/download': typeof DashboardDownloadRoute
-  '/dashboard/downloads': typeof DashboardDownloadsRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -266,6 +274,8 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/admin'
+    | '/admin/'
     | '/'
     | '/auth'
     | '/changelog'
@@ -286,7 +296,6 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/dashboard/billing'
     | '/dashboard/download'
-    | '/dashboard/downloads'
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/dashboard/'
@@ -295,6 +304,7 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/cakto'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/admin'
     | '/'
     | '/auth'
     | '/changelog'
@@ -314,7 +324,6 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/dashboard/billing'
     | '/dashboard/download'
-    | '/dashboard/downloads'
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/dashboard'
@@ -323,6 +332,8 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/cakto'
   id:
     | '__root__'
+    | '/admin'
+    | '/admin/'
     | '/'
     | '/auth'
     | '/changelog'
@@ -343,7 +354,6 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/dashboard/billing'
     | '/dashboard/download'
-    | '/dashboard/downloads'
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/dashboard/'
@@ -353,6 +363,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  AdminRoute: typeof AdminRouteWithChildren
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   ChangelogRoute: typeof ChangelogRoute
@@ -376,8 +387,32 @@ export interface RootRouteChildren {
   ApiPublicWebhooksCaktoRoute: typeof ApiPublicWebhooksCaktoRoute
 }
 
+interface AdminRouteChildren {
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -511,13 +546,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardProfileRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/downloads': {
-      id: '/dashboard/downloads'
-      path: '/downloads'
-      fullPath: '/dashboard/downloads'
-      preLoaderRoute: typeof DashboardDownloadsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
     '/dashboard/download': {
       id: '/dashboard/download'
       path: '/download'
@@ -573,7 +601,6 @@ declare module '@tanstack/react-router' {
 interface DashboardRouteChildren {
   DashboardBillingRoute: typeof DashboardBillingRoute
   DashboardDownloadRoute: typeof DashboardDownloadRoute
-  DashboardDownloadsRoute: typeof DashboardDownloadsRoute
   DashboardProfileRoute: typeof DashboardProfileRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -582,7 +609,6 @@ interface DashboardRouteChildren {
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardBillingRoute: DashboardBillingRoute,
   DashboardDownloadRoute: DashboardDownloadRoute,
-  DashboardDownloadsRoute: DashboardDownloadsRoute,
   DashboardProfileRoute: DashboardProfileRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
@@ -593,6 +619,7 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
+  AdminRoute: AdminRouteWithChildren,
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   ChangelogRoute: ChangelogRoute,
