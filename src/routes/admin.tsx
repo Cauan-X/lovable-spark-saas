@@ -31,7 +31,7 @@ function AdminLayout() {
   const navigate = useNavigate();
   const { user, profile, avatarUrl, loading } = useUser();
   const [checking, setChecking] = useState(true);
-  const pathname = useRouterState((s) => s.location.pathname);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
     if (!loading) {

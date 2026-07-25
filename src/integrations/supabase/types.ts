@@ -80,6 +80,36 @@ export type Database = {
         }
         Relationships: []
       }
+      extension_versions: {
+        Row: {
+          changelog: string | null
+          created_at: string
+          crx_path: string
+          id: string
+          is_latest: boolean
+          published_at: string
+          version: string
+        }
+        Insert: {
+          changelog?: string | null
+          created_at?: string
+          crx_path: string
+          id?: string
+          is_latest?: boolean
+          published_at?: string
+          version: string
+        }
+        Update: {
+          changelog?: string | null
+          created_at?: string
+          crx_path?: string
+          id?: string
+          is_latest?: boolean
+          published_at?: string
+          version?: string
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           amount_cents: number
@@ -226,6 +256,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -233,9 +284,17 @@ export type Database = {
     Functions: {
       delete_my_account: { Args: never; Returns: undefined }
       generate_license_key: { Args: never; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -362,6 +421,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
