@@ -14,7 +14,7 @@ export const Route = createFileRoute("/admin/licenses")({
 type Row = {
   id: string;
   user_id: string;
-  key_prefix: string;
+  key: string;
   status: string;
   expires_at: string | null;
   created_at: string;
@@ -29,7 +29,7 @@ function AdminLicenses() {
     (async () => {
       const { data } = await supabase
         .from("licenses")
-        .select("id,user_id,key_prefix,status,expires_at,created_at")
+        .select("id,user_id,key,status,expires_at,created_at")
         .order("created_at", { ascending: false })
         .limit(200);
       setRows((data as Row[]) ?? []);
@@ -38,7 +38,7 @@ function AdminLicenses() {
   }, []);
 
   const filtered = rows.filter(
-    (r) => !q || r.key_prefix?.toLowerCase().includes(q.toLowerCase()) || r.status.includes(q.toLowerCase()),
+    (r) => !q || r.key?.toLowerCase().includes(q.toLowerCase()) || r.status.includes(q.toLowerCase()),
   );
 
   const badge = (status: string) => {
@@ -78,7 +78,7 @@ function AdminLicenses() {
             <tbody>
               {filtered.map((r) => (
                 <tr key={r.id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 font-mono text-xs">{r.key_prefix}••••</td>
+                  <td className="px-4 py-3 font-mono text-xs">{r.key.slice(0, 10)}••••</td>
                   <td className="px-4 py-3">{badge(r.status)}</td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {r.expires_at ? new Date(r.expires_at).toLocaleDateString("pt-BR") : "—"}
