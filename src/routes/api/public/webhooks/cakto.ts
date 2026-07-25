@@ -225,6 +225,29 @@ export const Route = createFileRoute("/api/public/webhooks/cakto")({
 
         // Trigger `create_license_for_subscription` roda automaticamente no insert de subscription ativa.
 
+        // Cache temporário para a página /success consultar a chave pelo txid.
+        if (externalId) {
+          const { data: lic } = await supabaseAdmin
+            .from("licenses")
+            .select("key, expires_at")
+            .eq("user_id", user.id)
+            .eq("status", "active")
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          if (lic?.key) {
+            await (supabaseAdmin as any).from("license_keys_cache").upsert(
+              {
+                transaction_id: externalId,
+                license_key: lic.key,
+                plan_slug: plan.slug,
+                expires_at: lic.expires_at ?? expiresAt,
+              },
+              { onConflict: "transaction_id" },
+            );
+          }
+        }
+
         return json({ ok: true, action: "activated", plan: plan.slug });
       },
     },
