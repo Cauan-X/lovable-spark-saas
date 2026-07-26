@@ -27,12 +27,12 @@ export const Route = createFileRoute("/api/internal/cleanup-devices")({
 
         if (!license) return json({ error: "license not found" }, 404);
 
-        // Delete test devices
+        // Delete test devices (incluindo verificação)
         await supabaseAdmin
           .from("devices")
           .delete()
           .eq("license_id", license.id)
-          .in("device_id", ["check-device-000001", "check2-00000000000001"]);
+          .in("device_id", ["check-device-000001", "check2-00000000000001", "check-verify-00000001"]);
 
         return json({ ok: true });
       },
