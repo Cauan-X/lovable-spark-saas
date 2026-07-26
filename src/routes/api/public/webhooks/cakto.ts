@@ -47,7 +47,8 @@ function extractEmail(payload: Record<string, unknown>): string | null {
 
 function extractExternalId(payload: Record<string, unknown>): string | null {
   const d = payload.data as Record<string, unknown> | undefined;
-  const id = payload.id ?? payload.transaction_id ?? d?.id ?? d?.transaction_id;
+  const p = d?.purchase as Record<string, unknown> | undefined;
+  const id = payload.id ?? payload.transaction_id ?? d?.id ?? d?.transaction_id ?? p?.id;
   return id ? String(id) : null;
 }
 
