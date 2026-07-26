@@ -8,6 +8,34 @@
 chrome.storage.local.get(["eu_license_valid", "ql_license_valid"], (param2) => {
   _syncPanelClick(param2.eu_license_valid || param2.ql_license_valid);
 });
+// Heartbeat automático a cada 5 minutos (inclusive com sidepanel fechado)
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.alarms.create("licenseHeartbeat", { periodInMinutes: 5 });
+});
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name !== "licenseHeartbeat") return;
+  chrome.storage.local.get(["eu_license_key", "ql_license_key", "eu_device_id", "ql_device_id"], (items) => {
+    const key = items.eu_license_key || items.ql_license_key || "";
+    const device = items.eu_device_id || items.ql_device_id || "";
+    if (!key || !device) return;
+    fetch("https://lovable-spark-saas.lovable.app/api/public/license/heartbeat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, device_id: device }),
+    }).then((r) => r.json()).then((data) => {
+      if (!data.ok && !data.valid) {
+        chrome.storage.local.remove(["eu_license_valid", "eu_license_key", "eu_device_id",
+          "ql_license_valid", "ql_license_key", "ql_device_id"], () => {
+          chrome.tabs.query({}, (tabs) => {
+            for (const t of tabs) {
+              chrome.tabs.sendMessage(t.id, { action: "qlDeactivateBypass" }).catch(() => {});
+            }
+          });
+        });
+      }
+    }).catch(() => {});
+  });
+});
 chrome.storage.onChanged.addListener((param3, param4) => {
   if (param4 === "local" && ("eu_license_valid" in param3 || "ql_license_valid" in param3)) {
     _syncPanelClick(
@@ -273,6 +301,21 @@ chrome.runtime.onMessage.addListener((param9, param10, param11) => {
       },
     );
     return true;
+  }
+  // Heartbeat periódico (alarme a cada 5 min)
+  if (param9 && param9.action === "heartbeatResult") {
+    if (!param9.valid) {
+      chrome.storage.local.remove(["eu_license_valid", "eu_license_key", "eu_device_id",
+        "ql_license_valid", "ql_license_key", "ql_device_id"], () => {
+        chrome.tabs.query({}, (tabs) => {
+          for (const t of tabs) {
+            chrome.tabs.sendMessage(t.id, { action: "qlDeactivateBypass" }).catch(() => {});
+          }
+        });
+      });
+    }
+    param11({ ok: true });
+    return false;
   }
   if (param9 && param9.action === "downloadProject") {
     (async function () {

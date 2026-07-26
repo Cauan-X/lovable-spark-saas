@@ -9,7 +9,8 @@
     "scripting",
     "tabs",
     "sidePanel",
-    "cookies"
+    "cookies",
+    "alarms"
   ],
   "host_permissions": [
     "https://*.lovable.dev/*",
