@@ -15,9 +15,16 @@ function json(body: unknown, status = 200) {
 // o "external_reference" contendo o slug do plano; se não vier, caímos
 // para o valor em centavos.
 function resolvePlan(payload: Record<string, unknown>): { slug: string; days: number } | null {
+  const d = payload.data as Record<string, unknown> | undefined;
+  const offerName = String(((d?.offer as Record<string, unknown> | undefined)?.name) ?? "").toLowerCase();
+  if (offerName.includes("test")) return { slug: "test", days: 7 };
+  if (offerName.includes("mensal") || offerName.includes("month")) return { slug: "monthly", days: 30 };
+  if (offerName.includes("trimestral") || offerName.includes("quarter")) return { slug: "quarterly", days: 90 };
+  if (offerName.includes("anual") || offerName.includes("annual") || offerName.includes("vital")) return { slug: "annual", days: 365 };
+
   const ref = String(
     (payload.external_reference as string | undefined) ??
-      ((payload.data as Record<string, unknown> | undefined)?.external_reference as string | undefined) ??
+      d?.external_reference as string | undefined ??
       "",
   ).toLowerCase();
   if (ref.includes("annual") || ref.includes("anual")) return { slug: "annual", days: 365 };
@@ -25,15 +32,12 @@ function resolvePlan(payload: Record<string, unknown>): { slug: string; days: nu
   if (ref.includes("month") || ref.includes("mensal")) return { slug: "monthly", days: 30 };
   if (ref.includes("test") || ref.includes("teste")) return { slug: "test", days: 7 };
 
-  const amountCents = Number(
-    (payload.amount as number | undefined) ??
-      ((payload.data as Record<string, unknown> | undefined)?.amount as number | undefined) ??
-      0,
-  );
-  if (amountCents >= 15000) return { slug: "annual", days: 365 };
-  if (amountCents >= 5000) return { slug: "quarterly", days: 90 };
-  if (amountCents >= 2000) return { slug: "monthly", days: 30 };
-  if (amountCents > 0 && amountCents < 500) return { slug: "test", days: 7 };
+  // Fallback: valor em reais (Cakto envia amount em reais, ex: 5.99)
+  const amount = Number(payload.amount ?? d?.amount ?? 0);
+  if (amount >= 150) return { slug: "annual", days: 365 };
+  if (amount >= 50) return { slug: "quarterly", days: 90 };
+  if (amount >= 20) return { slug: "monthly", days: 30 };
+  if (amount > 0) return { slug: "test", days: 7 };
   return null;
 }
 
@@ -59,7 +63,9 @@ function extractStatus(payload: Record<string, unknown>): string {
 
 function extractAmount(payload: Record<string, unknown>): number {
   const d = payload.data as Record<string, unknown> | undefined;
-  return Number(payload.amount ?? d?.amount ?? 0);
+  const raw = Number(payload.amount ?? d?.amount ?? 0);
+  // Cakto envia em reais (ex: 5.99) → converter para centavos
+  return Math.round(raw * 100);
 }
 
 export const Route = createFileRoute("/api/public/webhooks/cakto")({
@@ -84,13 +90,19 @@ export const Route = createFileRoute("/api/public/webhooks/cakto")({
           return json({ error: "invalid json" }, 400);
         }
 
-        const provided =
-          (typeof payload.secret === "string" ? payload.secret : "") ||
+        // Normaliza data: Cakto envia como array [{...}] às vezes
+        if (Array.isArray(payload.data) && payload.data.length > 0) {
+          (payload as Record<string, unknown>).data = payload.data[0] as Record<string, unknown>;
+        }
+
+        const provided = (
+          typeof payload.secret === "string" ? payload.secret :
           request.headers.get("x-cakto-secret") ||
           request.headers.get("x-webhook-secret") ||
           request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ||
           url.searchParams.get("secret") ||
-          "";
+          ""
+        ).trim();
 
         if (!provided || provided.length !== secret.length) {
           console.error(
