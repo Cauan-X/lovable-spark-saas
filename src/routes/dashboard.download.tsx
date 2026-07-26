@@ -104,11 +104,9 @@ function DownloadPage() {
   };
 
   const version = latestVersion?.version ?? "3.1.0";
-  const crxUrl = latestVersion?.crx_path
-    ? latestVersion.crx_path.startsWith("http")
-      ? latestVersion.crx_path
-      : `https://github.com/Cauan-X/lovable-spark-saas/releases/download/v${version}/lovable-spark-v${version}.crx`
-    : `https://github.com/Cauan-X/lovable-spark-saas/releases/download/v${version}/lovable-spark-v${version}.crx`;
+  // Serve o .crx direto do que estiver salvo em extension_versions.crx_path
+  // (URL absoluta ou caminho servido pelo próprio app em /downloads/...).
+  const crxUrl = latestVersion?.crx_path || `/downloads/spark-v${version}.crx`;
 
   if (!user) return null;
 
