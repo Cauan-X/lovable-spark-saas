@@ -77,12 +77,14 @@ function BillingPage() {
   const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("pt-BR");
   const fmtDateShort = (iso: string) => new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
 
+  const licStatus = license?.status ?? "inactive";
   const subStatus = sub?.status ?? "inactive";
-  const subExpiresAt = sub?.expires_at ?? license?.expires_at ?? null;
-  const daysLeft = subExpiresAt
-    ? Math.max(0, Math.ceil((new Date(subExpiresAt).getTime() - Date.now()) / 86400000))
+  const effectiveStatus = licStatus === "active" ? subStatus : licStatus;
+  const expiresAt = license?.expires_at ?? sub?.expires_at ?? null;
+  const daysLeft = expiresAt
+    ? Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 86400000))
     : null;
-  const isActive = subStatus === "active" || license?.status === "active";
+  const isActive = licStatus === "active";
 
   if (loading) {
     return (
@@ -119,11 +121,11 @@ function BillingPage() {
                 {sub ? PLAN_LABEL[sub.plan_slug] ?? sub.plan_slug : "Ativo"}
               </div>
               <Badge className={`mt-2 border-0 ${
-                subStatus === "active" ? "bg-emerald-500/15 text-emerald-400" :
-                subStatus === "past_due" ? "bg-amber-500/15 text-amber-400" :
+                effectiveStatus === "active" ? "bg-emerald-500/15 text-emerald-400" :
+                effectiveStatus === "past_due" ? "bg-amber-500/15 text-amber-400" :
                 "bg-red-500/15 text-red-400"
               }`}>
-                {subStatus === "active" ? "Ativo" : subStatus === "past_due" ? "Vencendo" : subStatus}
+                {effectiveStatus === "active" ? "Ativo" : effectiveStatus === "past_due" ? "Vencendo" : licStatus}
               </Badge>
             </Card>
 
@@ -132,7 +134,7 @@ function BillingPage() {
                 <CalendarClock className="h-3.5 w-3.5" /> Válido até
               </div>
               <div className="mt-2 text-lg font-semibold">
-                {subExpiresAt ? fmtDate(subExpiresAt) : "—"}
+                {expiresAt ? fmtDate(expiresAt) : "—"}
               </div>
               {daysLeft !== null && (
                 <div className="mt-3 space-y-1">
