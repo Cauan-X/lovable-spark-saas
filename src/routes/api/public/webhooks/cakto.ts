@@ -129,8 +129,6 @@ export const Route = createFileRoute("/api/public/webhooks/cakto")({
         const externalId = extractExternalId(payload);
         const amountCents = extractAmount(payload);
 
-        if (!email) return json({ error: "missing customer email" }, 400);
-
         const isPaid = ["paid", "approved", "completed", "purchase_approved", "subscription_renewed"].some(
           (s) => status.includes(s),
         );
@@ -140,43 +138,51 @@ export const Route = createFileRoute("/api/public/webhooks/cakto")({
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        // Find or create the user via Supabase Admin API
-        const { data: usersList, error: listErr } = await supabaseAdmin.auth.admin.listUsers({
-          page: 1,
-          perPage: 1000,
-        });
-        if (listErr) {
-          console.error("[cakto-webhook] listUsers", listErr);
-          return json({ error: "internal" }, 500);
-        }
-        let user = usersList.users.find((u) => u.email?.toLowerCase() === email);
-        if (!user) {
-          const created = await supabaseAdmin.auth.admin.createUser({
-            email,
-            email_confirm: true,
-          });
-          if (created.error || !created.data.user) {
-            console.error("[cakto-webhook] createUser", created.error);
-            return json({ error: "cannot create user" }, 500);
-          }
-          user = created.data.user;
-        }
-
         if (isCanceled) {
-          await supabaseAdmin
-            .from("subscriptions")
-            .update({ status: "canceled" })
-            .eq("user_id", user.id)
-            .eq(externalId ? "external_id" : "user_id", externalId ?? user.id);
-          await supabaseAdmin
-            .from("licenses")
-            .update({ status: "canceled" })
-            .eq("user_id", user.id)
-            .eq("status", "active");
-          return json({ ok: true, action: "canceled" });
+          // Cancelamento/reembolso: busca por externalId primeiro, depois por email
+          if (externalId) {
+            const { data: inv } = await supabaseAdmin
+              .from("invoices")
+              .select("user_id")
+              .eq("provider", "cakto")
+              .eq("external_id", externalId)
+              .maybeSingle();
+            if (inv) {
+              await supabaseAdmin.from("subscriptions").update({ status: "canceled" })
+                .eq("user_id", inv.user_id).eq("status", "active");
+              await supabaseAdmin.from("licenses").update({ status: "canceled" })
+                .eq("user_id", inv.user_id).eq("status", "active");
+              return json({ ok: true, action: "canceled" });
+            }
+          }
+          // Fallback: busca por email
+          if (email) {
+            const { data: usersList } = await supabaseAdmin.auth.admin.listUsers();
+            const user = usersList?.users?.find((u) => u.email?.toLowerCase() === email);
+            if (user) {
+              await supabaseAdmin.from("subscriptions").update({ status: "canceled" })
+                .eq("user_id", user.id).eq("status", "active");
+              await supabaseAdmin.from("licenses").update({ status: "canceled" })
+                .eq("user_id", user.id).eq("status", "active");
+              return json({ ok: true, action: "canceled" });
+            }
+          }
+          return json({ ok: true, action: "ignored_cancel_no_user" });
         }
 
         if (!isPaid) return json({ ok: true, action: "ignored", status });
+        if (!email) return json({ error: "missing customer email" }, 400);
+
+        const { data: usersList, error: listErr } = await supabaseAdmin.auth.admin.listUsers({
+          page: 1, perPage: 1000,
+        });
+        if (listErr) return json({ error: "internal" }, 500);
+        let user = usersList.users.find((u) => u.email?.toLowerCase() === email);
+        if (!user) {
+          const created = await supabaseAdmin.auth.admin.createUser({ email, email_confirm: true });
+          if (created.error || !created.data.user) return json({ error: "cannot create user" }, 500);
+          user = created.data.user;
+        }
 
         const plan = resolvePlan(payload);
         if (!plan) return json({ error: "unknown plan" }, 400);
