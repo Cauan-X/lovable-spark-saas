@@ -107,6 +107,7 @@ function DownloadPage() {
   // Serve o .crx direto do que estiver salvo em extension_versions.crx_path
   // (URL absoluta ou caminho servido pelo próprio app em /downloads/...).
   const crxUrl = latestVersion?.crx_path || `/downloads/spark-v${version}.crx`;
+  const zipFile = `spark-v${version}.zip`;
 
   if (!user) return null;
 
