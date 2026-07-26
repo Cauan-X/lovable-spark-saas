@@ -20,7 +20,7 @@ export const Route = createFileRoute("/dashboard/download")({
 });
 
 type License = {
-  key_prefix: string;
+  key: string;
   status: string;
   expires_at: string | null;
 };
@@ -79,7 +79,7 @@ function DownloadPage() {
       const [{ data: lics }, { data: ver }] = await Promise.all([
         supabase
           .from("licenses")
-          .select("key_prefix, status, expires_at")
+          .select("key, status, expires_at")
           .eq("user_id", user.id)
           .in("status", ["active", "past_due"])
           .limit(1),
@@ -98,9 +98,9 @@ function DownloadPage() {
   }, [user]);
 
   const copy = async () => {
-    const fullKey = license?.key_prefix ?? "";
+    const fullKey = license?.key ?? "";
     await navigator.clipboard.writeText(fullKey);
-    toast.success("Prefixo copiado!");
+    toast.success("Chave copiada!");
   };
 
   const version = latestVersion?.version ?? "3.1.0";
@@ -152,7 +152,7 @@ function DownloadPage() {
               </div>
               <div className="flex items-center gap-2">
                 <code className="flex-1 truncate rounded-md bg-black/40 px-3 py-2 font-mono text-sm tracking-wider">
-                  {license.key_prefix}••••-••••-••••-••••
+                  {license.key}
                 </code>
                 <Button size="sm" variant="outline" onClick={copy}>
                   <Copy className="mr-1.5 h-3.5 w-3.5" /> Copiar
