@@ -59,6 +59,53 @@ export type Database = {
         }
         Relationships: []
       }
+      devices: {
+        Row: {
+          blocked: boolean
+          created_at: string
+          device_id: string
+          id: string
+          label: string | null
+          last_seen_at: string
+          license_id: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          blocked?: boolean
+          created_at?: string
+          device_id: string
+          id?: string
+          label?: string | null
+          last_seen_at?: string
+          license_id: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          blocked?: boolean
+          created_at?: string
+          device_id?: string
+          id?: string
+          label?: string | null
+          last_seen_at?: string
+          license_id?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "devices_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "licenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       downloads: {
         Row: {
           downloaded_at: string
