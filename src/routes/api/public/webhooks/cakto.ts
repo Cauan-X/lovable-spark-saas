@@ -183,6 +183,14 @@ export const Route = createFileRoute("/api/public/webhooks/cakto")({
 
         const expiresAt = new Date(Date.now() + plan.days * 24 * 60 * 60 * 1000).toISOString();
 
+        // Expire any active-but-expired licenses before creating a new one
+        await supabaseAdmin
+          .from("licenses")
+          .update({ status: "expired" })
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .lt("expires_at", new Date().toISOString());
+
         // Idempotência: se já existe invoice com esse external_id, não duplica
         if (externalId) {
           const { data: existing } = await supabaseAdmin
