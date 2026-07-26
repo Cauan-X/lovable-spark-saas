@@ -231,29 +231,43 @@ export const Route = createFileRoute("/api/public/webhooks/cakto")({
           raw_payload: payload as never,
         });
 
-        // Trigger `create_license_for_subscription` roda automaticamente no insert de subscription ativa.
+        // Cria a licença DIRETAMENTE (não depende do trigger, que ignora expiração)
+        const { data: activeLic } = await supabaseAdmin
+          .from("licenses")
+          .select("id, key")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .maybeSingle();
 
-        // Cache temporário para a página /success consultar a chave pelo txid.
-        if (externalId) {
-          const { data: lic } = await supabaseAdmin
-            .from("licenses")
-            .select("key, expires_at")
-            .eq("user_id", user.id)
-            .eq("status", "active")
-            .order("created_at", { ascending: false })
-            .limit(1)
-            .maybeSingle();
-          if (lic?.key) {
-            await (supabaseAdmin as any).from("license_keys_cache").upsert(
-              {
-                transaction_id: externalId,
-                license_key: lic.key,
-                plan_slug: plan.slug,
-                expires_at: lic.expires_at ?? expiresAt,
-              },
-              { onConflict: "transaction_id" },
-            );
-          }
+        let licenseKey: string | null = activeLic?.key ?? null;
+
+        if (!activeLic) {
+          const rawUuid = crypto.randomUUID().replace(/-/g, "").toUpperCase();
+          const seg1 = rawUuid.substring(0, 4);
+          const seg2 = rawUuid.substring(4, 8);
+          const seg3 = rawUuid.substring(8, 12);
+          const newKey = `SPARK-${seg1}-${seg2}-${seg3}`;
+
+          const { error: licErr } = await supabaseAdmin.from("licenses").insert({
+            user_id: user.id,
+            key: newKey,
+            status: "active",
+            expires_at: expiresAt,
+          });
+          if (!licErr) licenseKey = newKey;
+        }
+
+        // Cache para a página /success consultar a chave pelo txid.
+        if (externalId && licenseKey) {
+          await (supabaseAdmin as any).from("license_keys_cache").upsert(
+            {
+              transaction_id: externalId,
+              license_key: licenseKey,
+              plan_slug: plan.slug,
+              expires_at: expiresAt,
+            },
+            { onConflict: "transaction_id" },
+          );
         }
 
         return json({ ok: true, action: "activated", plan: plan.slug });
