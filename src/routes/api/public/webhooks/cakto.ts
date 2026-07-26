@@ -54,7 +54,7 @@ function extractExternalId(payload: Record<string, unknown>): string | null {
 
 function extractStatus(payload: Record<string, unknown>): string {
   const d = payload.data as Record<string, unknown> | undefined;
-  return String(payload.status ?? d?.status ?? payload.event ?? "unknown").toLowerCase();
+  return String(d?.status ?? payload.status ?? payload.event ?? "unknown").toLowerCase();
 }
 
 function extractAmount(payload: Record<string, unknown>): number {
