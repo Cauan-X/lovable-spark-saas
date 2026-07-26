@@ -36,7 +36,7 @@ const STEPS = [
   {
     icon: Download,
     title: "Baixar a extensão",
-    desc: 'Clique no botão "Baixar .crx" abaixo para obter a versão mais recente da extensão.',
+    desc: 'Baixe o arquivo .crx ou .zip abaixo com a versão mais recente da extensão.',
   },
   {
     icon: Puzzle,
@@ -51,7 +51,7 @@ const STEPS = [
   {
     icon: Puzzle,
     title: "Instalar extensão",
-    desc: "Arraste o arquivo .crx baixado para a janela do chrome://extensions e clique em \"Adicionar extensão\".",
+    desc: "Método 1: Arraste o .crx para chrome://extensions e clique em \"Adicionar extensão\". Método 2 (alternativo): Extraia o .zip e clique em \"Carregar sem compactação\".",
   },
   {
     icon: Key,
@@ -136,14 +136,24 @@ function DownloadPage() {
             )}
           </div>
 
-          <a
-            href={crxUrl}
-            download
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-brand bg-gradient-brand-hover text-white px-6 py-3 text-sm font-medium transition-all hover:shadow-lg w-full sm:w-auto"
-          >
-            <Download className="h-4 w-4" />
-            Baixar .crx (v{version})
-          </a>
+          <div className="flex flex-wrap gap-3">
+            <a
+              href={crxUrl}
+              download
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-brand bg-gradient-brand-hover text-white px-6 py-3 text-sm font-medium transition-all hover:shadow-lg"
+            >
+              <Download className="h-4 w-4" />
+              Baixar .crx (v{version})
+            </a>
+            <a
+              href={`/downloads/${zipFile}`}
+              download
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-6 py-3 text-sm font-medium transition-all hover:bg-white/[0.06]"
+            >
+              <Download className="h-4 w-4" />
+              Baixar .zip (v{version})
+            </a>
+          </div>
 
           {loading ? null : license ? (
             <div className="mt-6 rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
@@ -248,10 +258,7 @@ function DownloadPage() {
         </h3>
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
           <li>
-            <strong>.crx não instala?</strong> Verifique se o modo desenvolvedor está ativo em chrome://extensions.
-          </li>
-          <li>
-            <strong>Extensão não aparece?</strong> Após arrastar o .crx, clique em "Adicionar extensão" no popup de confirmação.
+            <strong>.crx não instala / não aparece?</strong> Baixe o <strong>.zip</strong>, extraia para uma pasta e use "Carregar sem compactação" em chrome://extensions.
           </li>
           <li>
             <strong>Chave inválida?</strong> Certifique-se de copiar a chave completa, incluindo o prefixo SPARK-.
